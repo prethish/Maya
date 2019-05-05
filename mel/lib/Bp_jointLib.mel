@@ -1,0 +1,280 @@
+proc Bp_jointLib()
+{
+ print("Init Joint Lib!!");
+ source "lib/Bp_rigLib";
+ source "lib/Bp_procLib";
+}
+
+global proc string Bp_findEndJoint(string $_jnt)
+{
+  string $c[]=Bp_findRelatives({$_jnt});
+  return $c[size($c)-1];
+}
+
+global proc string[] Bp_removeJntDivisions(string $sel[])
+{
+    //-----------------remove joint divisions
+  string $duplicateBones[]=`duplicate -rc $sel[0]`;
+  string $children[]=Bp_findRelatives($sel);
+  int $nC=size($children);
+  //delete extra bones if the selection is between bones
+  string $duplicatedChildren[]=Bp_findRelatives({$duplicateBones[0]});
+  if (size($sel)==2)
+  {
+    if(`objExists $duplicatedChildren[$nC+1]` )
+    {
+      delete $duplicatedChildren[$nC+1];
+    }
+  }
+  //find the end joint
+  string $startJoint=$duplicateBones[0];
+  $children=Bp_findRelatives({$duplicateBones[0]});
+  $nC=size($children);
+  string $endJoint=$children[$nC-1];
+  parent -w $endJoint ;
+  //delete the children
+  delete $children[1];
+  //parent the endjoint to the startjoint
+  parent $endJoint $startJoint;
+  return {$startJoint,$endJoint};
+}
+
+//will 
+global proc Bp_divideBone(string $jnt,int $noDiv)
+{
+	int $i;
+
+	if($jnt=="")
+	{
+		error  "no object selected";
+		return;
+	}
+	if(`objectType  $jnt`!="joint")
+	{
+		error  "the selected object is not a Joint";
+		return;
+	}
+	string $children[]=`listRelatives -c $jnt`;
+	string $startJoint=$jnt;
+	string $endJoint=$children[0];
+	vector $startPos=`xform -q -ws -t $startJoint`;
+	vector $endPos=`xform -q -ws -t $endJoint`;
+	float $divNo=1/(float)$noDiv;
+	$parent=$startJoint;
+	for($i=1;$i<$noDiv;$i++)
+  {
+		vector $newPos=($startPos*(1-$divNo*$i)+$endPos*$divNo*$i);
+		string $insertedJoint=`insertJoint $parent`;
+		joint -e -co -p ($newPos.x) ($newPos.y) ($newPos.z) $insertedJoint;
+		$parent=$insertedJoint;
+	}
+}
+
+
+global proc Bp_createDistributedRoll(string $_startJnt,string $_endJnt,string $_name)
+{
+  
+  Bp_divideBone($_startJnt,4);
+  string $jnts[]=Bp_findRelatives({$_startJnt,$_endJnt});
+  string $avgMidN=`createNode "plusMinusAverage" -n ($_name+"_mid_avg")`;
+  string $avgStartN=`createNode "plusMinusAverage" -n ($_name+"_start_avg")`;
+  string $avgEndN=`createNode "plusMinusAverage" -n ($_name+"_end_avg")`;
+  
+  connectAttr -f ($_startJnt+".rx") ($avgMidN+".i1[0]");
+  connectAttr -f ($_endJnt+".rx") ($avgMidN+".i1[1]");
+  setAttr ($avgMidN+".op") 3;
+  connectAttr -f ($avgMidN+".o1") ($jnts[1]);
+  
+  connectAttr -f ($_startJnt+".rx") ($avgStartN+".i1[0]");
+  connectAttr -f ($jnts[1]+".rx") ($avgStartN+".i1[1]");
+  setAttr ($avgStartN+".op") 3;
+  connectAttr -f ($avgStartN+".o1") ($jnts[0]);
+  
+  connectAttr -f ($jnts[1]+".rx") ($avgEndN+".i1[0]");
+  connectAttr -f ($_endJnt+".rx") ($avgEndN+".i1[1]");
+  setAttr ($avgEndN+".op") 3;
+  connectAttr -f ($avgEndN+".o1") ($jnts[2]);
+  
+}
+//create joints on every Cv 
+global proc string Bp_createJntOnCurve(int $op, int $divisions,string $curve, string $name){
+
+	string $crvShp=Bp_getShape($curve);
+	int $cvNo=size($crvShp+".cp");
+	float $divF;
+	//int $numCVs = `getAttr -size ($curve + ".controlPoints")`;
+	int $i;
+	select -cl;
+
+	if($op==1){
+		for($i=0;$i<$cvNo;$i++){
+			vector $pos=`getAttr ($crvShp+".cp["+$i+"]")`;
+			joint -p ($pos.x) ($pos.y) ($pos.z) -n ($name+"_jnt#");	
+		}
+	}
+	else if ($op==2){
+		if($divisions==0)
+			$divF=1/(float)$cvNo;
+		else
+			$divF=1/(float)$divisions;
+		for ($i=0; $i <= $divisions; $i++)	{
+			vector $pos=`pointOnCurve -parameter ($divF*$i) -turnOnPercentage 1 -p $curve`;
+			joint -p ($pos.x) ($pos.y) ($pos.z) -n ($name+"_jnt#");	
+		}
+	}
+	string $sel[]=`ls-sl`;
+	string $rtJnt=rootOf($sel[0]);
+	print($rtJnt+"-->Created on Curve\n");
+	return $rtJnt;
+}
+
+global proc Bp_createJnt(int $choice)
+{
+  switch($choice)
+  {
+  case 1:
+    string $sel[]=`ls-sl`;//get selected vertex
+    select -cl;
+    for($obj in $sel)
+    {//create joints at the selectec vertex points
+      
+      vector $pos=`pointPosition -w $obj`;
+      joint -p ($pos.x) ($pos.y) ($pos.z) ;
+      
+    }
+    break;
+  case 2:
+    PolySelectConvert 3;
+    string $clst[]=`cluster`;
+    select -cl;//clear selection to prevent joint from getting parent under the transform
+    string $jnt =`joint`;
+    delete `parentConstraint $clst[1] $jnt`;
+    delete $clst[0];
+    break;
+  case 3:
+    polySelectSp -loop;//select edge loop
+    PolySelectConvert 3;//convert to vertex selection
+    string $clst[]=`cluster`;
+    select -cl;//clear selection to prevent joint from getting parent under the transform
+    string $jnt =`joint`;
+    delete `parentConstraint $clst[1] $jnt`;
+    delete $clst[0];
+    break;
+  case 4:
+    string $sel[]=`ls -sl`;
+    int $i=0;
+    for($obj in $sel)
+    {
+      select -r $obj;//the correct way to do it is to get the edge number then call the polyselect command
+      polySelectSp -loop;  //but i am lazy,so doing it the selection way and letting maya do the work
+      PolySelectConvert 3;
+      string $clst[]=`cluster`;
+      select -cl;//clear selection to prevent joint from getting parent under the transform
+      string $jnt =`joint`;
+      delete `parentConstraint $clst[1] $jnt`;
+      delete $clst[0];
+    }
+    break;
+  }  
+}
+
+global proc Bp_createJointGeo()
+{
+  //get the root joint
+  string $sel[]=`ls -sl`;
+  string $temp[];
+  string $parentObj,$childObj,$cubeObj;
+  string $material1,$material2,$SG1,$SG2;
+  float $length;
+  int $flag=0;
+  
+  $parentObj=$sel[0];
+  do {
+    //create a polycube,postion and resize it acoording to the child joint
+    
+    $temp=`listRelatives -children $parentObj`;
+    if($temp[0]==""){
+      //if there no more child joints; exit
+      error "no Child Joints";
+      break;
+    }
+    vector $axis;
+    $childObj=$temp[0];
+    vector $t=Bp_convertToVec(`xform -q -t $childObj`);
+    if(($t.x)>0.001)
+    {
+    $axis=<<1,0,0>>;
+    }
+    else if (($t.y)>.001)
+    {
+    $axis=<<0,1,0>>;
+    }
+    else if (($t.z)>.001)
+    {
+    $axis=<<0,0,1>>;
+    }
+    print($axis);
+    $length=0;	
+    $temp=`polyCube`;
+    $cubeObj=$temp[0];
+    vector $dist=-.5*$axis;
+    move -r ($dist.x) ($dist.y) ($dist.z) ($cubeObj+".scalePivot") ($cubeObj+".rotatePivot") ;
+    
+    if($axis.x==1)
+    {
+    $t=<<$t.x,1,1>>;
+    }
+    else if ($axis.y==1)
+    {
+    $t=<<1,$t.y,1>>;
+    }
+    else if($axis.z==1)
+    {
+    $t=<<1,1,$t.z>>;
+    }
+    print($t);
+    scale -r ($t.x) ($t.y ) ($t.z); 
+    delete `parentConstraint  $parentObj $cubeObj`; 
+    parent $cubeObj $parentObj;
+    FreezeTransformations;
+    $parentObj=$childObj;
+    //check if the shading groups are present,set $flag=1
+    $temp=`listSets -type 1`;
+    for($obj in $temp){
+      if($obj=="myGeoblueSG"){
+        $flag=1;
+        break;
+      }
+    }
+    //create shading groups
+    if($flag==0){
+      
+      $material1=`shadingNode -asShader lambert -n "myGeoBlue"`;
+      $SG1=`sets -renderable true -noSurfaceShader true -empty -name "myGeoblueSG"`;
+      connectAttr -f ( $material1 + ".outColor" ) ( $SG1 + ".surfaceShader" );
+      setAttr ( $material1 + ".color" ) -type double3 0.449 0.613 0.744  ;
+      
+
+      $material2=`shadingNode -asShader lambert -n "myGeoOrange"`;
+      $SG2=`sets -renderable true -noSurfaceShader true -empty -name "myGeoOrangeSG"`;
+      connectAttr -f ( $material2 + ".outColor" ) ( $SG2 + ".surfaceShader" );
+      setAttr ( $material2 + ".color" ) -type double3 0.80166 0.594702 0.311044  ;
+      $flag=0;
+
+    }
+    else
+    {
+    $SG1="myGeoblueSG";
+    $SG2="myGeoOrangeSG";
+    }
+      //apply the materials
+      sets -fe $SG1 $cubeObj;
+      sets -fe $SG2 ($cubeObj+".f[1]") ($cubeObj+".f[3]") ;
+  } while ($childObj!="");//reapeat till the last joint
+  print "created geo on joints";
+
+}
+
+
+
+

@@ -1,0 +1,635 @@
+global proc shelf_Bp_TextEditor () {
+    global string $gBuffStr;
+    global string $gBuffStr0;
+    global string $gBuffStr1;
+
+
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "searchReplaceNames \"$\" \"_Ctrl\" \"selected\";" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "searchReplaceNames \"$\" \"_Ctrl\" \"selected\";" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "_Ctrl" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "searchReplaceNames \"$\" \"_Ctrl\" \"selected\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "searchReplaceNames \"$\" \"_Mat\" \"selected\";" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "searchReplaceNames \"$\" \"_Mat\" \"selected\";" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "_Mat" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "searchReplaceNames \"$\" \"_Mat\" \"selected\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "searchReplaceNames \"$\" \"_endEff\" \"selected\";" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "searchReplaceNames \"$\" \"_endEff\" \"selected\";" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "_endEff" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "searchReplaceNames \"$\" \"_endEff\" \"selected\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "searchReplaceNames \"$\" \"_ikH\" \"selected\";" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "searchReplaceNames \"$\" \"_ikH\" \"selected\";" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "_ikH" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "searchReplaceNames \"$\" \"_ikH\" \"selected\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "searchReplaceNames \"$\" \"Grp\" \"selected\";" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "searchReplaceNames \"$\" \"Grp\" \"selected\";" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "Grp" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "searchReplaceNames \"$\" \"Grp\" \"selected\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "searchReplaceNames \"$\" \"_jnt\" \"selected\";" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "searchReplaceNames \"$\" \"_jnt\" \"selected\";" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "_jnt" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "searchReplaceNames \"$\" \"_jnt\" \"selected\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "searchReplaceNames \"$\" \"_Geo\" \"selected\";" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "searchReplaceNames \"$\" \"_Geo\" \"selected\";" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "_Geo" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "searchReplaceNames \"$\" \"_Geo\" \"selected\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "string $text;\r\nstring $sel[]=`ls -sl`;\r\nstring $result = `prompt..." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "string $text;\r\nstring $sel[]=`ls -sl`;\r\nstring $result = `prompt..." 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "RemT" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "\r\nstring $text;\r\nstring $sel[]=`ls -sl`;\r\nstring $result = `promptDialog\r\n    -title \"Rename Object\"\r\n\t-tx $sel[0]\r\n    -message \"Remove Wanted Text\"\r\n    -button \"OK\" -button \"Cancel\"\r\n    -defaultButton \"OK\" -cancelButton \"Cancel\"\r\n    -dismissString \"Cancel\"`;\r\n\r\nif ($result == \"OK\") {\r\n    $text = `promptDialog -query -text`;\r\n\r\n\tfor($obj in $sel){\r\n\t string $text2=`substitute $text $obj \"\"`;\r\n\t rename  $obj $text2;\r\n\t}\r\n\r\n}" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "string $sel[]=`ls-sl`;\r\n\r\nfor($obj in $sel){\r\n\tstring $text=`sub..." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "string $sel[]=`ls-sl`;\r\n\r\nfor($obj in $sel){\r\n\tstring $text=`sub..." 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "Del$1" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "string $sel[]=`ls-sl`;\r\n\r\nfor($obj in $sel){\r\n\tstring $text=`substring $obj 1 (size($obj)-1)`;\r\n\trename  $obj $text;\r\n}\r\n" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "string $text;\r\nstring $result = `promptDialog\r\n    -title \"Renam..." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "string $text;\r\nstring $result = `promptDialog\r\n    -title \"Renam..." 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "Suffix" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "string $text;\r\nstring $result = `promptDialog\r\n    -title \"Rename Object\"\r\n    -message \"Enter Name:\"\r\n    -button \"OK\" -button \"Cancel\"\r\n    -defaultButton \"OK\" -cancelButton \"Cancel\"\r\n    -dismissString \"Cancel\"`;\r\n\r\nif ($result == \"OK\") {\r\n    $text = `promptDialog -query -text`;\r\n\tsearchReplaceNames \"$\" $text \"selected\";\r\n\r\n}" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "string $text;\rstring $result = `promptDialog\r    -title \"Rename ..." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "string $text;\rstring $result = `promptDialog\r    -title \"Rename ..." 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "Prefix" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "string $text;\rstring $result = `promptDialog\r    -title \"Rename Object\"\r    -message \"Enter Name:\"\r    -button \"OK\" -button \"Cancel\"\r    -defaultButton \"OK\" -cancelButton \"Cancel\"\r    -dismissString \"Cancel\"`;\r\rif ($result == \"OK\") {\r    $text = `promptDialog -query -text`;\r\tsearchReplaceNames \"^\" $text \"selected\";\r\r}" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "string $text;\rstring $result = `promptDialog\r    -title \"Rename ..." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "string $text;\rstring $result = `promptDialog\r    -title \"Rename ..." 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "RemALL" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "string $text;\rstring $result = `promptDialog\r    -title \"Rename Object\"\r    -message \"Enter Name:\"\r    -button \"OK\" -button \"Cancel\"\r    -defaultButton \"OK\" -cancelButton \"Cancel\"\r    -dismissString \"Cancel\"`;\r\rif ($result == \"OK\") {\r    $text = `promptDialog -query -text`;\r\tsearchReplaceNames \".*\" $text \"selected\";\r\r}" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "searchReplaceNames \"^\" \"r_\" \"selected\";" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "searchReplaceNames \"^\" \"r_\" \"selected\";" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "r_" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "searchReplaceNames \"^\" \"r_\" \"selected\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "searchReplaceNames \"^\" \"l_\" \"selected\";" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "searchReplaceNames \"^\" \"l_\" \"selected\";" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "l_" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "searchReplaceNames \"^\" \"l_\" \"selected\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "searchReplaceNames \"_l\" \"_r\" \"selected\";" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "searchReplaceNames \"_l\" \"_r\" \"selected\";" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "_l2_r" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "searchReplaceNames \"_l\" \"_r\" \"selected\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "searchReplaceNames \".$\" \"_l\" \"selected\";" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "searchReplaceNames \".$\" \"_l\" \"selected\";" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "_l" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "searchReplaceNames \"$\" \"_l\" \"selected\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "searchReplaceNames \".$\" \"_r\" \"selected\";" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "searchReplaceNames \".$\" \"_r\" \"selected\";" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "_r" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "searchReplaceNames \"$\" \"_r\" \"selected\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "searchReplaceNames \"l_\" \"r_\" \"selected\";" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "searchReplaceNames \"l_\" \"r_\" \"selected\";" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "l_2r_" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "searchReplaceNames \"l_\" \"r_\" \"selected\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "string $result = `promptDialog\r\n    -title \"Rename IkHandle\"\r\n  ..." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "string $result = `promptDialog\r\n    -title \"Rename IkHandle\"\r\n  ..." 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "ikRename" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "string $result = `promptDialog\r\n    -title \"Rename IkHandle\"\r\n    -message \"Enter Name:\"\r\n    -button \"OK\" -button \"Cancel\"\r\n    -defaultButton \"OK\" -cancelButton \"Cancel\"\r\n    -dismissString \"Cancel\"`;\r\n\r\nif ($result == \"OK\") {\r\n    string $IkHName= `promptDialog -query -text`;\r\n    string $sel[]=`ls-sl`;\r\n\tstring $temp[];\r\n\t$temp[0]=`ikHandle -q -endEffector  $sel[0]`;\r\n\trename $temp[0] ($IkHName+\"_endEff\");\r\n\t\r\n\tif(`ikHandle -q -solver  $sel[0]`==\"ikSplineSolver\")\r\n\t        {\r\n\t                \r\n\t                $temp[0]=`ikHandle -q -curve $sel[0]`;\r\n\t                rename $sel[0] ($IkHName+\"_SplineikH\");\r\n\t                tokenize $temp[0] \"|\" $temp;\r\n\t                rename $temp[0] ($IkHName+\"_SplineCrv\");\r\n\t        }\r\n\t        else{\r\n\t                rename $sel[0] ($IkHName+\"_ikH\");\r\n\t        }\r\n\t\r\n\t\r\n}" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+
+} 

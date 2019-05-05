@@ -1,0 +1,214 @@
+proc Bp_rigTools()
+{
+ print("Init Rig Tools!!");
+ source "lib/Bp_rigLib";
+}
+
+global proc string Bp_getFirstElement(string $sel[])
+{
+  return $sel[0];
+}
+
+global proc Bp_RT_UI_execute(string $operation)
+{
+  string $sel[]=`ls-sl`;
+	string $name=`textFieldGrp -q -tx name_obj`;
+  string $obj=`textFieldButtonGrp -q -tx sel_obj`;
+  int $no=`intSliderGrp -q -v no_div`;
+  string $attrObj=`textFieldGrp -q -tx attr_obj`;
+	string $firstN=$sel[0];
+	string $secondN=$sel[1];
+  int $op=`radioButtonGrp -q -sl axis_obj`;
+  vector $axis;
+  string $axisXYZ;
+  switch($op)
+  {
+    case 1:{$axis=<<1,0,0>>;$axisXYZ="X";}break; 
+    case 2:{$axis=<<0,1,0>>;$axisXYZ="Y";}break;
+    case 3:{$axis=<<0,0,1>>;$axisXYZ="Z";}break;   
+  }
+  
+	switch($operation)
+	{
+    case "resetAttr":
+    Bp_resetAttrs();
+    break;
+		case "addAttr":
+    if($obj=="Object..")
+     $obj=$firstN;
+     string $temp[]=stringToStringArray($attrObj," ");
+    Bp_addAttr($obj,$temp[0],$temp[1],(float)$temp[2],(float)$temp[3]);
+		break;		
+    case "aliasAttr":
+      string $attr=`textFieldGrp -q -tx alias_attr`;
+			Bp_replaceAttr($attr);
+		break;		
+
+    case "checkCtrl":
+      string $list[]=Bp_checkCtrls();
+      textScrollList  -e -removeAll outMsgs;
+      for($obj in $list)
+      {
+        textScrollList -edit -append $obj outMsgs;
+      }
+		break;  
+    case "ribSpine":
+     if(!objExists("Bp_createRibSpine"))
+     {
+     source "Bp_createRibSpine";
+     }
+     Bp_createRibSpine($name,$axisXYZ,$no);
+		break;
+    case "addShape":
+      string $sel[]=`ls -sl`;
+      string $cShape[]=`listRelatives -shapes $sel[0]`;
+      parent -add -shape $cShape[0] $sel[1];
+      delete $sel[0];
+    break;
+    case "lh_translate":
+    Bp_toggleLockAndHideAttr($sel, "translate");
+    break;
+    case "lh_rotate":
+    Bp_toggleLockAndHideAttr($sel, "rotate");
+    break;
+    case "lh_scale":
+    Bp_toggleLockAndHideAttr($sel, "scale");
+    break;
+    case "lh_vis":
+    Bp_toggleLockAndHideAttr($sel, "visibility");
+    break;
+    default:
+    print("no Such OPtion!!");
+    break;
+	}	
+}
+
+
+//delete the open instance of the window
+if(`window -exists Bp_rigToolsWin`) 
+	deleteUI Bp_rigToolsWin;
+//delete any window preferences set
+if(`windowPref -exists Bp_rigToolsWin`)
+    windowPref -r Bp_rigToolsWin;
+	//display widow
+window -wh 450 500 Bp_rigToolsWin;
+
+	columnLayout  -adj 1 -cw 450 -cat "both" 1 -rs 2;
+      textFieldGrp
+      -label "Name.."
+      -text "name"
+       name_obj;
+	    textFieldButtonGrp
+        -label "Selected Object"
+        -cw 1 75
+        -bl "<<getSelectedObject"
+        -text  "Object.."
+        -bc "string $sel[]=`ls-sl`;textFieldButtonGrp -e -tx $sel[0] sel_obj;"
+         sel_obj;
+      intSliderGrp -label "Number" -field true
+          -minValue 1 -maxValue 100
+          -fieldMinValue 1 -fieldMaxValue 100
+          -value 1 
+          no_div;
+       radioButtonGrp -numberOfRadioButtons 3  -cw 1 35
+      -labelArray3 "X" "Y" "Z" 
+      -sl 1
+       axis_obj;
+      separator -style "in";
+      textFieldGrp
+        -label "Add Attribute"
+        -pht "Enter AttributeName AttrType Min Max"
+        -cc "Bp_RT_UI_execute(\"addAttr\")"
+         attr_obj;
+          popupMenu -b 3;
+            menuItem -l "int"  -c  "textFieldGrp  -e -it \"long \" attr_obj";
+            menuItem -l "float"  -c  "textFieldGrp  -e -it \"\"float\" \" attr_obj";
+            menuItem -l "vector"  -c  "textFieldGrp  -e -it \"string \" attr_obj";
+            menuItem -l "enum"  -c  "textFieldGrp  -e -it \"enum \" attr_obj";
+      textFieldGrp  -l "Replace Attribute Name" 
+          -pht "select the attr in Channel Box"
+					-cc "Bp_RT_UI_execute(\"aliasAttr\")" 
+          alias_attr;
+    separator -style "in";
+	//selected object
+    text -l "Creation";
+
+		rowLayout -nc 4;	
+      iconTextButton -style "iconAndTextVertical"
+    		-image1 "kinJoint.png" 
+				-bgc 0.0 1.0 1.0 
+				-l "Joint Tools" 
+				-c " source Bp_boneTools";
+      iconTextButton -style "iconAndTextVertical"
+    		-image1 "kinJoint.png" 
+				-bgc 0.0 1.0 1.0 
+				-l "Multi Connect" 
+				-c "source Bp_multiConnect";
+
+
+      iconTextButton -style "iconAndTextVertical"
+    		-image1 "kinJoint.png" 
+				-bgc 0.0 1.0 1.0 
+				-l "Ribbon Spine" 
+				-c "Bp_RT_UI_execute(\"ribSpine\")";
+
+      iconTextButton -style "iconAndTextVertical"
+    		-image1 "selectByObject.png" 
+				-bgc 0.0 1.0 1.0 
+				-l "Distribute" 
+				-c "Bp_RT_UI_execute(\"divide\")";
+		setParent..;
+    separator -style "in";
+    text -l "Constraint";
+		rowLayout -nc 6;					
+			iconTextButton -style "iconAndTextVertical"
+    		-image1 "locator.png" 
+				-bgc 0.0 1.0 0.0 
+				-l "Distribute"
+				-c "source Bp_distributeConstraint"; 
+			iconTextButton -style "iconAndTextVertical"
+    		-image1 "selectByObject.png" 
+				-bgc 0.0 1.0 1.0 
+				-l "Space Switch" 
+				-c "source Bp_spaceSwitch";
+
+      iconTextButton -style "iconAndTextVertical"
+    		-image1 "selectByObject.png" 
+				-bgc 0.0 1.0 1.0 
+				-l "AddShape" 
+				-c "Bp_RT_UI_execute(\"addShape\")";
+        
+      iconTextButton -style "iconAndTextVertical"
+    		-image1 "selectByObject.png" 
+				-bgc 0.0 1.0 1.0 
+				-l "Add Geo" 
+				-c "Bp_createJointGeo()";
+      columnLayout;
+      text -l "Lock And Hide";
+        rowColumnLayout -nc 2;
+          button -l "Translate"
+          -c  "Bp_RT_UI_execute(\"lh_translate\")";
+          button -l "Rotate"
+          -c  "Bp_RT_UI_execute(\"lh_rotate\")";
+          button -l "Scale"
+          -c  "Bp_RT_UI_execute(\"lh_scale\")";
+          button -l "Visibilty"
+          -c  "Bp_RT_UI_execute(\"lh_vis\")";
+        setParent..;
+      setParent..;
+      columnLayout;
+      button -l "ResetAttr"
+              -c  "Bp_RT_UI_execute(\"resetAttr\")";
+      setParent..;
+		setParent..;
+    separator -style "in";
+    separator -style "in";
+    textScrollList -sc "string $temp[]=`textScrollList -q -si outMsgs`;select -r $temp[0];"
+                  outMsgs;
+      popupMenu -b 3;
+        menuItem -l "Clear"  -c  "textScrollList  -e -removeAll outMsgs";
+        menuItem -l "Check"  -c  "Bp_RT_UI_execute(\"checkCtrl\")";        
+    
+showWindow Bp_rigToolsWin;
+
+

@@ -1,0 +1,239 @@
+global proc shelf_Bp_Selecction () {
+    global string $gBuffStr;
+    global string $gBuffStr0;
+    global string $gBuffStr1;
+
+
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "New selection" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "New selection" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "NSel" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "string $selectns[]=`ls-sl`;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Add to selection" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Add to selection" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "Add" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "string $new[]=`ls-sl`;\r\n$selectns=stringArrayCatenate($selectns, $new);" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Subtract" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Subtract" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "Sub" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "string $new[]=`ls-sl`;\r\n$selectns=stringArrayRemove($selectns, $new);" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "select" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "select" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "Sel" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "select -r $selectns;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "erase selection" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "erase selection" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "Erase" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "clear($selectns);" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "string $sel[]=`ls-sl`;\r\rif(`size($sel)`==2){\r\rstring $temp[];\rin..." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "string $sel[]=`ls-sl`;\r\rif(`size($sel)`==2){\r\rstring $temp[];\rin..." 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "ERng" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "string $sel[]=`ls-sl`;\r\n\r\nif(`size($sel)`==2){\r\n\r\nstring $temp[];\r\nint $eno1,$eno2;\r\n\r\ntokenize($sel[0],\".[]\",$temp);\r\n$eno1=$temp[2];\r\n\r\ntokenize($sel[1],\".[]\",$temp);\r\n$eno2=$temp[2];\r\npolySelect -edgeRingPattern $eno1 $eno2 $temp[0];\r\n}\r\nelse\r\nwarining \"(only) 2 edges needs to be selected\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "string $sel[]=`ls-sl`;\r\rif(`size($sel)`==2){\r\rstring $temp[];\rin..." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "string $sel[]=`ls-sl`;\r\rif(`size($sel)`==2){\r\rstring $temp[];\rin..." 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "ELoop" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "string $sel[]=`ls-sl`;\r\rif(`size($sel)`==2){\r\rstring $temp[];\rint $eno1,$eno2;\r\rtokenize($sel[0],\".[]\",$temp);\r$eno1=$temp[2];\r\rtokenize($sel[1],\".[]\",$temp);\r$eno2=$temp[2];\rpolySelect -edgeLoopPattern $eno1 $eno2 $temp[0];\r}\relse\rwarining \"(only) 2 edges needs to be selected\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+
+} 

@@ -1,0 +1,745 @@
+/*
+Script Name:Bp_rigProcLib
+Software Version:Maya 2009 onwards
+Description:My commonly used rig scripts
+*/
+proc Bp_rigLib(){
+    print "--------->Intializing Bp Rigging Libraries<--------\n";
+}
+//create attach locators on crvs
+//
+global proc string Bp_attachLocOnCurve(string $name,string $curve,float $uValue)
+{
+  //create locator and group it
+  string $loc=Bp_getFirstElement(`spaceLocator -p 0 0 0 -n ($name+"_loc")`);
+  //create motion path and delete the animation curve attached to the U value
+  string $path=`pathAnimation -c $curve $loc -n ($name+"_motionPath")`;
+  delete ($path+"_uValue");
+  setAttr ($path+".uValue") $uValue;
+  return $loc;
+}
+global proc string Bp_createControlsOnCurve(string $name,string $curve)
+{
+  //create first loc
+  string $loc=Bp_attachLocOnCurve(($name+"_r"),$curve,0);
+  //create joint offsetCurve
+  select $loc;
+  string $offJoint=`joint -n ($name+"_r_offsetJnt")`;
+  string $bindJoint=`joint -n ($name+"_r_jnt")`;
+  parent $offJoint $loc;
+  Bp_createShpCtrl($offJoint,"sphere");
+  $loc=Bp_attachLocOnCurve(($name+"_mid"),$curve,0.5);
+  //create joint offsetCurve
+  select $loc;
+  $offJoint=`joint -n ($name+"_mid_offsetJnt")`;
+  $bindJoint=`joint -n ($name+"_mid_jnt")`;
+  parent $offJoint $loc;
+  Bp_createShpCtrl($offJoint,"sphere");
+  $loc=Bp_attachLocOnCurve(($name+"_l"),$curve,1);
+  //create joint offsetCurve
+  select $loc;
+  $offJoint=`joint -n ($name+"_l_offsetJnt")`;
+  $bindJoint=`joint -n ($name+"_l_jnt")`;
+  parent $offJoint $loc;
+  Bp_createShpCtrl($offJoint,"sphere");
+  return "";
+}
+global proc string Bp_createfollicle(string $object,float $u,float $v,string $name,int $count)
+{
+//http://chrislesage.com/character-rigging/manually-create-maya-follicle-in-python/
+    //create the follicle  
+  string $follicleName=($name+$count+"_follicle");
+  string $follicleShape=`createNode "follicle" -n ($follicleName+"Shape")`;
+  //get the shape of the object
+  string $shape=Bp_getFirstElement(`listRelatives -s $object`);
+  //perform the connections
+  //input surface
+  connectAttr -f ($shape+".local") ($follicleShape+".inputSurface");
+  connectAttr -f ($shape+".worldMatrix[0]") ($follicleShape+".inputWorldMatrix");
+  connectAttr -f ($follicleShape+".outRotate") ($follicleName+".r");
+  connectAttr -f ($follicleShape+".outTranslate") ($follicleName+".t");
+  setAttr ($follicleShape+".parameterU") $u;
+  setAttr ($follicleShape+".parameterV") $v;
+  setAttr -lock true ($follicleName+".t" );
+  setAttr -lock true ($follicleName+".r" );
+  return $follicleName;
+}
+//return the children in heirarchy or based on selection
+global proc string [] Bp_findRelatives(string $_jnts[]){
+	string $retJnts[];
+	clear($retJnts);
+	string $startJoint=$_jnts[0],$childObj;
+	int $jointNo=0;
+	if((size($_jnts))>1){
+		//go through children till the end joint is reached and store the number
+		string $endJoint=$_jnts[1];
+		$parentObj=$startJoint;
+		do	{
+			$retJnts[size($retJnts)]=$parentObj;
+			$temp=`listRelatives -children $parentObj`;
+			$childObj=$temp[0];
+			$jointNo++;
+			$parentObj=$childObj;
+		}	while($parentObj!=$endJoint);
+	}
+	else {
+		//full heirarchy
+		$parentObj=$startJoint;
+		do {
+			$retJnts[size($retJnts)]=$parentObj;
+			$temp=`listRelatives -children $parentObj`;
+			$childObj=$temp[0];
+			$jointNo++;
+			$parentObj=$childObj;
+		}while($parentObj!="");	
+	}
+	//print("Bp_findRelatives--->returned "+$jointNo+" joints\n");
+	return($retJnts);
+}	
+//create rig groups and layers
+global proc string Bp_createRigGrps(string $_name){
+	string $baseGrp=`group -empty -n ($_name+"Rig")`;
+	string $animGrp=`group -empty -n ($_name+"_animGrp")`;
+	string $nonAnimGrp=`group -empty -n ($_name+"_dontTouchGrp")`;
+	parent $animGrp $baseGrp;
+	parent  $nonAnimGrp $baseGrp;
+	string $geoGrp=`group -empty -n ($_name+"_geoGrp")`;
+	string $blendSGrp=`group -empty -n ($_name+"_blendSGrp")`;
+	string $rigParts=`group -empty -n ($_name+"_rigPartsGrp")`;
+	parent $geoGrp $nonAnimGrp;
+	parent $blendSGrp $nonAnimGrp;
+	parent $rigParts $nonAnimGrp;
+	string $ikGrp=`group -empty -n ($_name+"_ikGrp")`;
+	string $jntGrp=`group -empty -n ($_name+"_jntGrp")`;
+	string $ctrlGrp=`group -empty -n ($_name+"_ctrlGrp")`;
+	parent $ikGrp $animGrp;
+	parent  $jntGrp $animGrp;
+	parent  $ctrlGrp $animGrp;
+  //create display layers
+  select $geoGrp;
+  createDisplayLayer -name ("meshLyr") -number 1 -nr;
+  select $ctrlGrp;
+  createDisplayLayer -name ("ctrlLyr") -number 1 -nr;
+  select $jntGrp $rigParts;
+  createDisplayLayer -name ("extraLyr") -number 1 -nr;
+  string $mainCtrl=Bp_importControl("main",$_name);
+  parent $mainCtrl $ctrlGrp;
+  string $locGrp=`group -empty -n ($_name+"_locGrp")`;
+  parent $locGrp $mainCtrl;
+  //adding constraints
+  scaleConstraint $mainCtrl $ikGrp;
+  parentConstraint $mainCtrl $ikGrp;
+  scaleConstraint $mainCtrl $jntGrp;
+  parentConstraint $mainCtrl $jntGrp;
+  return $baseGrp;
+}
+//create null grps to zero transforms
+global proc string Bp_createOffsetGrp(string $_object)
+{
+	duplicate -rc -n ($_object+"_offGrp") $_object;
+	string $shapes[]=`listRelatives -s ($_object+"_offGrp") `;
+  //delete all shapes
+	for($shp in $shapes)
+		delete $shp;
+  //delete all children
+  string $children[]=`listRelatives -c ($_object+"_offGrp")`;
+  for($obj in $children)
+    delete $obj;
+	parent $_object ($_object+"_offGrp") ;
+	return ($_object+"_offGrp") ;
+}
+//create empty grps with the names of and position of the objects 
+global proc string [] Bp_createNullGrps(string $_objs[])
+{	
+	string $temp[];
+	string $names[];
+	for($obj in $_objs)
+  {
+		tokenize  ($obj,"_",$temp);
+		string $grp=`group -em -n ($temp[0]+"_"+$temp[1]+"Grp")`;
+		delete  `parentConstraint  $obj $grp`;
+    $names[size($names)]=$grp;
+	}
+  return $names;
+}
+//create pole vectors
+global proc string Bp_createPV(string $_ikH, string $_name)
+{
+	string $pvCtrl=Bp_importControl("pole",$_name);
+	string $temp[];
+	string $startJoint=`ikHandle -q -startJoint $_ikH`;
+	$temp[0]=`ikHandle -q -endEffector  $_ikH`;  
+	$temp=`listConnections -source on ($temp[0]+".tx")`;
+	string $endJoint=$temp[0];
+	$temp=`ikHandle  -q -jl $_ikH`;
+	string $midJoint=$temp[1];
+	delete `pointConstraint  $startJoint $endJoint $pvCtrl`;
+	delete `aimConstraint  -aimVector 0 1 0 -upVector 1 0 0
+	- worldUpType "vector" -worldUpVector 1 0 0	
+	$midJoint $pvCtrl`;
+	delete `pointConstraint  $midJoint $pvCtrl`;
+	vector $pv=`getAttr ($_ikH+".pv")`;
+  float $dist=mag ( Bp_convertFloatToVector(`xform -q -ws -t $startJoint`)
+                  - Bp_convertFloatToVector(`xform -q -ws -t $endJoint`) );
+  print("\n"+$dist+"\n");
+	move -r (($pv.x)*$dist) (($pv.y)*$dist) (($pv.z)*$dist) $pvCtrl; 
+	poleVectorConstraint $pvCtrl $_ikH;
+//create offsetGrp
+  Bp_createOffsetGrp($pvCtrl);
+	return $pvCtrl;
+}
+//create controls at the selected objects
+global proc string Bp_createCtrl(string $_type, string $_name){
+	string $crv;
+	switch($_type)
+	{
+	case "cube":
+		$crv=`curve -d 1 -p 0.5 0.5 0.5 -p 0.5 -0.5 0.5 -p 0.5 -0.5 -0.5 
+		-p 0.5 0.5 -0.5 -p -0.5 0.5 -0.5 -p -0.5 -0.5 -0.5 -p -0.5 -0.5 0.5 
+		-p -0.5 0.5 0.5 -p 0.5 0.5 0.5 -p 0.5 0.5 -0.5 -p -0.5 0.5 -0.5 -p -0.5 0.5 0.5 
+		-p -0.5 -0.5 0.5 -p -0.5 -0.5 -0.5 -p 0.5 -0.5 -0.5 -p 0.5 -0.5 0.5 
+		-p -0.5 -0.5 0.5 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -k 16`;
+		break;
+	case "cylinder":
+		$crv=`curve -d 1 -p 1 1 0 -p 0.707107 1 -0.707107 -p 0 1 -1 
+		-p -0.707107 1 -0.707107 -p -1 1 0 -p -1 -1 0 -p -0.707107 -1 -0.707107 
+		-p 0 -1 -1 -p 0.707107 -1 -0.707107 -p 1 -1 0 -p 1 1 0 -p 0.707107 1 0.707107 -p 0 1 1 
+		-p -0.707107 1 0.707107 -p -1 1 0 -p -1 -1 0 -p -0.707107 -1 0.707107 -p 0 -1 1 -p 0.707107 -1 0.707107 
+		-p 1 -1 0 -p 0.707107 -1 -0.707107 -p 0 -1 -1 -p 0 1 -1 -p -0.707107 1 -0.707107 -p -1 1 0 -p -0.707107 1 0.707107 
+		-p 0 1 1 -p 0 -1 1 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 
+		-k 16 -k 17 -k 18 -k 19 -k 20 -k 21 -k 22 -k 23 -k 24 -k 25 -k 26 -k 27`;
+		break;
+	case "sphere":
+		$crv=`curve -d 1 -p 0 1 0 -p -0.707107 0.707107 0 -p -1 0 0 -p -0.707107 -0.707107 0 -p 0 -1 0 
+		-p 0.707107 -0.707107 0 -p 1 0 0 -p 0.707107 0.707107 0 -p 0 1 0 -p 0 0.707107 0.707107 -p 0 0 1 
+		-p 0 -0.707107 0.707107 -p 0 -1 0 -p 0 -0.707107 -0.707107 -p 0 0 -1 -p 0 0.707107 -0.707107 -p 0 1 0 
+		-k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 -k 11 -k 12 -k 13 -k 14 -k 15 -k 16` ;
+		break;
+	case "arrow":
+		$crv=`curve -d 1 -p 0 0 -3 -p -4 0 0 -p 0 0 3 -p 0 0 2 -p 10 0 2 -p 10 0 -2 -p 0 0 -2 -p 0 0 -3 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7` ;
+		break;
+	case "cone":
+		$crv=`curve -d 1 -p 0 0 -1 -p -1 0 0 -p 0 0 1 -p 1 0 0 -p 0 0 -1 -p 0 2 0 -p 0 0 1 -p -1 0 0 
+		-p 0 2 0 -p 1 0 0 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 `;
+		break;
+	case "circle":
+		$crv=`circle -c 0 0 0 -nr 1 0 0 -sw 360 -r 1 -d 3 -ut 0 -tol 0.01 -s 8 -ch 0`;
+		break;
+	case "square":
+		$crv=`curve -d 1 -p -1 0 -1 -p -1 0 1 -p 1 0 1 -p 1 0 -1 -p -1 0 -1 -k 0 -k 1 -k 2 -k 3 -k 4 `;
+		break;
+	case "poleVec":		
+		$crv=`curve -d 1 -p 0.199597 -1.25327e-007 4.429926 -p 0.199598 -1.25327e-007 -3.326918 
+		-p 0.199597 5.917197 0.551504 -p 0.199597 -1.25327e-007 4.429926 
+		-p -3.678825 -1.25327e-007 0.551504 -p 0.199597 5.917197 0.551504 
+		-p 4.078019 -1.25327e-007 0.551504 -p -3.678825 -1.25327e-007 0.551504 
+		-p 0.199598 -1.25327e-007 -3.326918 -p 4.078019 -1.25327e-007 0.551504 
+		-p 0.199597 -1.25327e-007 4.429926 
+		-k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10`;
+		break;
+	}
+	rename $crv ($_name+"_ctrl") ;
+	return ($_name+"_ctrl"); 
+}
+//create the different IK hadles
+global proc string Bp_createIkHandle(string $_iksolver, string $_ikstartJoint, string $_ikendJoint,string $_ikName){
+	string $retName,$temp[];
+	if($_iksolver!="ikSplineSolver"){
+		$temp=`ikHandle -name ($_ikName+"_ikH")  -solver $_iksolver
+		-startJoint $_ikstartJoint  -endEffector $_ikendJoint`;
+		rename  $temp[1]($_ikName+"_endF");	
+		$retName=($_ikName+"_ikH") ;
+	}
+	else
+	{
+		$temp=`ikHandle -name ($_ikName+"_SplineikH")  -solver $_iksolver -parentCurve 0
+		-startJoint $_ikstartJoint  -endEffector  $_ikendJoint`;
+		rename  $temp[1] ($_ikName+"_endF");
+		rename $temp[2] ($_ikName+"_SplineCrv");
+		$retName=($_ikName+"_SplineikH") ;
+	}
+	return $retName;
+}
+//global procedure to add a shape to a joint and use it as a control
+global proc string Bp_createShpCtrl(string $_jnt,string $_type)
+{
+  string $temp[];
+  if($_type=="circle")
+  {
+    $temp=`circle  -nr 1 0 0 -ch 0`;
+  }
+  else if($_type=="circle1")
+  {
+    $temp=`circle  -r .2 -nr 1 0 0 -ch 0`;
+  }
+  else if($_type=="sphere")
+  {
+  	$temp=`sphere -r 0.1 -ch 0`;
+  }
+  else if($_type=="cube")
+  {
+   $temp[0]=`curve -d 1 -p 0.5 0.5 0.5 -p 0.5 -0.5 0.5 -p 0.5 -0.5 -0.5 
+		-p 0.5 0.5 -0.5 -p -0.5 0.5 -0.5 -p -0.5 -0.5 -0.5 -p -0.5 -0.5 0.5 
+		-p -0.5 0.5 0.5 -p 0.5 0.5 0.5 -p 0.5 0.5 -0.5 -p -0.5 0.5 -0.5 -p -0.5 0.5 0.5 
+		-p -0.5 -0.5 0.5 -p -0.5 -0.5 -0.5 -p 0.5 -0.5 -0.5 -p 0.5 -0.5 0.5 
+		-p -0.5 -0.5 0.5 -k 0 -k 1 -k 2 -k 3 -k 4 -k 5 -k 6 -k 7 -k 8 -k 9 -k 10 
+    -k 11 -k 12 -k 13 -k 14 -k 15 -k 16`; 
+  }
+	string $shapeN=$temp[0];
+	parentConstraint  $_jnt $shapeN;
+	$temp=`listRelatives  -s $shapeN`;
+	parent -add -shape $temp[0] $_jnt;
+	rename $temp[0] ($_jnt+"Shape");
+	delete $shapeN;
+  if(endsWith($_jnt,"_ctrl")!=0)
+    $_jnt=`rename $_jnt ($_jnt+"_ctrl")`;
+	return $_jnt;
+}
+global proc string[] Bp_createJntSpline(int $_stretchEnable,string $_globalCtrl,string $_startJnt,string $_endJnt,string $_name)
+{
+  //store the createdI,k handle name and curve
+  string $splineIk=Bp_createIkHandle ("ikSplineSolver",$_startJnt,$_endJnt,$_name);
+  string $splineCrv=($_name+"_SplineCrv");
+//remove all the joints except the first and end joint
+  string $jnts[]=`Bp_removeJntDivisions({$_startJnt})`;
+  string $startJoint=$jnts[0];
+  string $endJoint=$jnts[1];
+  string $jntGrp=`group -em -n ($_name+"_splineJntGrp")`;
+  parent $startJoint $jntGrp;
+  parent $endJoint $jntGrp;
+//skin the curve to the joints
+  skinCluster -tsb -dr 25.0 $startJoint $endJoint $splineCrv;
+//set the Advenced twist controls
+  setAttr ($splineIk+".dTwistControlEnable") 1;
+  //set it to object rotation up
+  setAttr ($splineIk+".dWorldUpType") 4;
+  connectAttr -f ($startJoint + ".worldMatrix") ($splineIk+".dWorldUpMatrix");
+  connectAttr -f ($endJoint + ".worldMatrix") ($splineIk+".dWorldUpMatrixEnd");
+  rename $startJoint ($_name+"_start_ctrlJoint");
+  rename $endJoint ($_name+"_end_ctrlJoint");
+  //add stretch
+  if($_stretchEnable)
+  {
+    float $length=`arclen -ch 0 $splineCrv`;
+    string $lengthN=`arclen -ch 1 $splineCrv`;
+    $lengthN=`rename $lengthN ($_name+"_crvInfo")`;
+    string $divN=`createNode "multiplyDivide" -n ($_name+"_div")`;
+    setAttr ($divN+".op") 2;
+    setAttr ($divN+".i2x") $length;
+    connectAttr -f ($lengthN+".al") ($divN+".i1x");
+    string $condN=`createNode "condition" -n ($_name+"_cond")`;
+    setAttr ($condN+".op") 2;
+    connectAttr ($lengthN+".al") ($condN+".ft");
+    setAttr ($condN+".st") $length;
+    setAttr ($condN+".cfr") 1;
+    connectAttr -f ($divN+".ox")($condN+".ctr");
+    string $jnts[]=Bp_findRelatives({$_startJnt,$_endJnt});
+    $jnts=stringArrayRemove({$_endJnt},$jnts);
+    Bp_multiConnectAttr($condN,"ocr",$jnts,"sx");
+    //add globalScale offset
+    if($_globalCtrl!="")
+    {
+      string $gScaleMulN=`createNode "multDoubleLinear" -n ($_name+"_scale_mul")`;
+      connectAttr ($_globalCtrl+".sx") ($gScaleMulN+".i1");
+      setAttr ($gScaleMulN+".i2") $length;
+      connectAttr -f ($gScaleMulN+".o") ($condN+".st");
+      connectAttr -f ($gScaleMulN+".o") ($divN+".i2x");
+    }
+  }
+  return {$splineIk,$splineCrv,($_name+"_start_ctrlJoint"),($_name+"_end_ctrlJoint")};
+}
+//create SDK keys based on values 
+global proc string Bp_createSDK(string $_driver, string $_driven, float $_driverV[], float $_drivenV[] ){
+	float $origValue=`getAttr $_driver`;
+	int $i=0,$j=size($_drivenV);
+	for(;$i<$j;$i++){
+		setAttr $_driver $_driverV[$i];
+		setAttr $_driven $_drivenV[$i];
+		setDrivenKeyframe -cd $_driver $_driven;
+	}
+	setAttr $_driver $origValue;
+  string $connections[]=`listConnections -d on $_driven`;
+  return $connections[0];
+}
+global proc Bp_visibilityToggle(string $_onGrp[],string $_offGrp[], string $_attr, string $_ctrl){
+	string $prefix=`match  "^.*_" $_ctrl`;
+	string $revN=`createNode  -n ($prefix+"_visibilty_rev") reverse`;
+  float $fArr[]=`attributeQuery -n $_ctrl -min $_attr`;
+	float $minV=$fArr[0];
+  $fArr=`attributeQuery -n $_ctrl -max $_attr`;
+	float $maxV=$fArr[0];
+	if(($maxV==1)&&($minV==0))	{
+		Bp_multiConnectAttr($_ctrl,$_attr,$_onGrp,"visibility");
+		connectAttr -f ($_ctrl+"."+$_attr) ($revN+".inputX");
+		Bp_multiConnectAttr($revN,"outputX",$_offGrp,"visibility");
+	}
+	else	{
+		string $setRN=`createNode  -n ($prefix+"_visibility_setR") setRange`;
+		setAttr ($setRN+".nx") 0;
+		setAttr ($setRN+".onx") $minV;
+		setAttr ($setRN+".mx") 1;
+		setAttr ($setRN+".omx") $maxV;
+		connectAttr -f ($_ctrl+"."+$_attr) ($setRN+".vx");
+		Bp_multiConnectAttr($setRN,"outValueX",$_onGrp,"visibility");
+		connectAttr -f ($setRN+".ox")($revN+".inputX");
+		Bp_multiConnectAttr($revN,"outputX",$_offGrp,"visibility");
+	}
+} 
+global proc Bp_replaceAttr(string $_attrAlias)
+{
+	string $selAttr[]=`channelBox -q -selectedMainAttributes "mainChannelBox"`;
+	string $sel[]=`ls-sl`;
+	aliasAttr  $_attrAlias ($sel[0]+"."+$selAttr[0]);
+	print("--Replaced "+$selAttr[0]+" with"+$_attrAlias);
+}
+// add attributes 
+global proc Bp_addAttr(string $obj, string $attrName, string $attrType, float $minV, float $maxV)
+{
+	addAttr -ln $attrName  -at $attrType  -min $minV -max $maxV -dv 0 $obj;
+	setAttr -e -keyable true ($obj+"."+$attrName);
+}
+//connect the same attribute of a object to multiple objects
+global proc Bp_multiConnectAttr(string $outObj, string $outAttr, string $targets[],string $inAttr){
+	//cycle through the list of input objs while keeping the output objs constant..
+	print("connecting"+($targets[0]+"."+$outAttr)+" to "+($outObj+"."+$inAttr));
+	for($obj in $targets)
+  {
+  	connectAttr -f ($outObj+"."+$outAttr) ($obj+"."+$inAttr);
+  }
+}
+//blend 2 inputs to a attribute
+global proc Bp_blend2Attr(string $sourceObj, string $targetObj, string $sourceAttr, string $targetAttr)
+{
+	//find the existing input connection to the targetAttr
+	string $oldSourcePlug=`listConnections  -source 1 -plug 1 -skipConversionNodes 1 ($targetObj+"."+$targetAttr)`;
+	string $oldSourceObj=`match  "^[^\.]*" $oldSourcePlug`;
+	string $oldSourceAttr=`match "[^\.]*$" $oldSourcePlug`;
+	string $blendWN=`createNode -n ($targetObj+"_"+$targetAttr+"_blndW") blendWeighted`;
+	setAttr  ($blendWN+".current") 1;
+	disconnectAttr   $oldSourcePlug ($targetObj+"."+$targetAttr);
+	connectAttr  -f  $oldSourcePlug ($blendWN+".input[0]");
+	connectAttr  -f  ($sourceObj+"."+$sourceAttr) ($blendWN+".input[1]");
+	connectAttr  -f   ($blendWN+".output") ($targetObj+"."+$targetAttr);
+}
+global proc string [] Bp_blend2CompoundAttrs(string $sourceObjs[], string $targetObj, string $sourceAttrs[], string $targetAttrs[])
+{
+	//find the existing input connection to the targetAttr
+  int $i=0;
+  string $blndNs[];
+  for($sourceAttr in $sourceAttrs)
+  {
+    $targetAttr=$targetAttrs[$i];
+    string $blendCN=`createNode -n ($targetObj+"_"+$sourceAttr+"_blend") blendColors`;
+    connectAttr  -f  ($sourceObjs[0]+"."+$sourceAttr) ($blendCN+".color1");
+    connectAttr  -f  ($sourceObjs[1]+"."+$sourceAttr) ($blendCN+".color2");
+    connectAttr  -f   ($blendCN+".output") ($targetObj+"."+$targetAttr);
+    setAttr  ($blendCN+".blender") 1;
+    $blndNs[size($blndNs)]=$blendCN;
+    $i++;
+  }
+  return $blndNs;
+}
+global proc Bp_resetAttrs()
+{
+  //get the selected objects
+  string $sel[]=`ls-sl`;
+  for($obj in $sel)
+  {
+    //get the keyable attributes
+    string $attr[]=`listAttr  -k $obj`;
+    for($eachAttr in $attr)
+    {
+      //check whether to reset to zero or 1
+      if(Bp_isResetToZeroAttr($eachAttr))
+      setAttr ($obj+"."+$eachAttr) 1;
+      else
+      setAttr ($obj+"."+$eachAttr) 0;
+    }
+  }
+}
+//proc to check which all contols should not be set to zero
+global proc int Bp_isResetToZeroAttr(string $attr)
+{
+  string $patterns[]={"scaleX","scaleY","scaleZ","visibility","gScale"};
+  int $found = stringArrayContains($attr, $patterns);
+  return $found;
+}
+global proc Bp_directConnect(string $outObj,string $inObj,string $attrs[])
+{
+  for ($attr in $attrs)
+  {
+    switch($attr)
+    {
+      case "t":
+        connectAttr -f ($outObj+".tx") ($inObj+".tx");
+        connectAttr -f ($outObj+".ty") ($inObj+".ty");
+        connectAttr -f ($outObj+".tz") ($inObj+".tz");
+      break;
+      case "s":
+        connectAttr -f ($outObj+".sx") ($inObj+".sx");
+        connectAttr -f ($outObj+".sy") ($inObj+".sy");
+        connectAttr -f ($outObj+".sz") ($inObj+".sz");
+      break;
+      case "r":
+        connectAttr -f ($outObj+".rx") ($inObj+".rx");
+        connectAttr -f ($outObj+".ry") ($inObj+".ry");
+        connectAttr -f ($outObj+".rz") ($inObj+".rz");
+      break;
+      case "v":
+        connectAttr -f ($outObj+".visibility") ($inObj+".visibility");
+      break;
+    }
+  }  
+}
+global proc Bp_toggleLockAndHideAttr(string $sel[], string $attr)
+{
+  switch($attr)
+  {
+  case "t":
+    //loop through them
+    for ( $obj in $sel)
+    {
+      setAttr -lock (!`getAttr -l ($obj+".tx")`) ($obj+".tx");
+      setAttr -keyable (!`getAttr -k ($obj+".tx")`) ($obj+".tx");
+      setAttr -lock (!`getAttr -l ($obj+".ty")`) ($obj+".ty");
+      setAttr -keyable (!`getAttr -k ($obj+".ty")`) ($obj+".ty");
+      setAttr -lock (!`getAttr -l ($obj+".tz")`) ($obj+".tz");
+      setAttr -keyable (!`getAttr -k ($obj+".tz")`) ($obj+".tz");
+    }
+    break;
+  case "s":
+    //loop through them
+    for ( $obj in $sel)
+    {
+      setAttr -lock (!`getAttr -l ($obj+".sx")`) ($obj+".sx");
+      setAttr -keyable (!`getAttr -k ($obj+".sx")`) ($obj+".sx");
+      setAttr -lock (!`getAttr -l ($obj+".sy")`) ($obj+".sy");
+      setAttr -keyable (!`getAttr -k ($obj+".sy")`) ($obj+".sy");
+      setAttr -lock (!`getAttr -l ($obj+".sz")`) ($obj+".sz");
+      setAttr -keyable (!`getAttr -k ($obj+".sz")`) ($obj+".sz");
+    }
+    break;
+  case "r":
+    //loop through them
+    for ( $obj in $sel)
+    {
+      setAttr -lock (!`getAttr -l ($obj+".rx")`) ($obj+".rx");
+      setAttr -keyable (!`getAttr -k ($obj+".rx")`) ($obj+".rx");
+      setAttr -lock (!`getAttr -l ($obj+".ry")`) ($obj+".ry");
+      setAttr -keyable (!`getAttr -k ($obj+".ry")`) ($obj+".ry");
+      setAttr -lock (!`getAttr -l ($obj+".rz")`) ($obj+".rz");
+      setAttr -keyable (!`getAttr -k ($obj+".rz")`) ($obj+".rz");
+    }
+    break;
+  case "all":
+    for ( $obj in $sel)
+    {
+      setAttr -lock (!`getAttr -l ($obj+".tx")`) ($obj+".tx");
+      setAttr -keyable (!`getAttr -k ($obj+".tx")`) ($obj+".tx");
+      setAttr -lock (!`getAttr -l ($obj+".ty")`) ($obj+".ty");
+      setAttr -keyable (!`getAttr -k ($obj+".ty")`) ($obj+".ty");
+      setAttr -lock (!`getAttr -l ($obj+".tz")`) ($obj+".tz");
+      setAttr -keyable (!`getAttr -k ($obj+".tz")`) ($obj+".tz");
+    //scale
+      setAttr -lock (!`getAttr -l ($obj+".sx")`) ($obj+".sx");
+      setAttr -keyable (!`getAttr -k ($obj+".sx")`) ($obj+".sx");
+      setAttr -lock (!`getAttr -l ($obj+".sy")`) ($obj+".sy");
+      setAttr -keyable (!`getAttr -k ($obj+".sy")`) ($obj+".sy");
+      setAttr -lock (!`getAttr -l ($obj+".sz")`) ($obj+".sz");
+      setAttr -keyable (!`getAttr -k ($obj+".sz")`) ($obj+".sz");
+    //rotate
+      setAttr -lock (!`getAttr -l ($obj+".rx")`) ($obj+".rx");
+      setAttr -keyable (!`getAttr -k ($obj+".rx")`) ($obj+".rx");
+      setAttr -lock (!`getAttr -l ($obj+".ry")`) ($obj+".ry");
+      setAttr -keyable (!`getAttr -k ($obj+".ry")`) ($obj+".ry");
+      setAttr -lock (!`getAttr -l ($obj+".rz")`) ($obj+".rz");
+      setAttr -keyable (!`getAttr -k ($obj+".rz")`) ($obj+".rz");
+    }
+    break;
+  case "v":
+    //loop through them
+    for ( $obj in $sel)
+    {
+      setAttr -lock (!`getAttr -l ($obj+".visibility")`)($obj+".visibility");
+      setAttr -keyable (!`getAttr -k ($obj+".visibility")`) ($obj+".visibility");
+    }
+    break;
+  default:
+    if(`attributeExists $attr $sel[0]`)
+    {
+      for ( $obj in $sel)
+      {
+        setAttr -lock (!`getAttr -l ($obj+"."+$attr)`)($obj+"."+$attr);
+        setAttr -keyable (!`getAttr -k ($obj+"."+$attr)`) ($obj+"."+$attr);
+      }
+    }
+    else{ warning ("unable to find attr in objects to lock and hide!!!\n");}
+  break;
+  }
+}
+global proc Bp_toggleLockAttr(string $sel[],string $attr)
+{
+   switch($attr)
+  {
+  case "t":
+    //loop through them
+    for ( $obj in $sel)
+    {
+      setAttr -lock (!`getAttr -l ($obj+".tx")`) ($obj+".tx");
+      setAttr -lock (!`getAttr -l ($obj+".ty")`) ($obj+".ty");      
+      setAttr -lock (!`getAttr -l ($obj+".tz")`) ($obj+".tz");
+    }
+    break;
+  case "s":
+    //loop through them
+    for ( $obj in $sel)
+    {
+      setAttr -lock (!`getAttr -l ($obj+".sx")`) ($obj+".sx");
+      setAttr -lock (!`getAttr -l ($obj+".sy")`) ($obj+".sy"); 
+      setAttr -lock (!`getAttr -l ($obj+".sz")`) ($obj+".sz");
+    }
+    break;
+  case "r":
+    //loop through them
+    for ( $obj in $sel)
+    {
+      setAttr -lock (!`getAttr -l ($obj+".rx")`) ($obj+".rx");
+      setAttr -lock (!`getAttr -l ($obj+".ry")`) ($obj+".ry");
+      setAttr -lock (!`getAttr -l ($obj+".rz")`) ($obj+".rz");
+    }
+    break;
+  case "all":
+    for ( $obj in $sel)
+    {
+      setAttr -lock (!`getAttr -l ($obj+".tx")`) ($obj+".tx");
+      setAttr -lock (!`getAttr -l ($obj+".ty")`) ($obj+".ty");  
+      setAttr -lock (!`getAttr -l ($obj+".tz")`) ($obj+".tz");
+    //scale
+      setAttr -lock (!`getAttr -l ($obj+".sx")`) ($obj+".sx");
+      setAttr -lock (!`getAttr -l ($obj+".sy")`) ($obj+".sy");    
+      setAttr -lock (!`getAttr -l ($obj+".sz")`) ($obj+".sz");
+    //rotate
+      setAttr -lock (!`getAttr -l ($obj+".rx")`) ($obj+".rx");
+      setAttr -lock (!`getAttr -l ($obj+".ry")`) ($obj+".ry");
+      setAttr -lock (!`getAttr -l ($obj+".rz")`) ($obj+".rz");
+    }
+    break;
+  case "v":
+    //loop through them
+    for ( $obj in $sel)
+    {
+      setAttr -lock (!`getAttr -l ($obj+".visibility")`)($obj+".visibility");
+    }
+    break;
+  }
+}
+global proc string[] Bp_checkCtrls()
+{
+  select  -r "*_ctrl";
+  string $allCtrls[]=`ls-sl`;
+  string $retCtrls[];
+  clear($retCtrls);
+  int $flag;
+  for($ctrl in $allCtrls)
+  {
+    string $attr[]=`listAttr -k $ctrl`;
+    $flag=0;//flag is set if there are values in the attrs
+    for($eachAttr in $attr)
+    {
+      if(Bp_isResetToZeroAttr($eachAttr))
+      {
+        if(`getAttr ($ctrl+"."+$eachAttr)`!=1)
+        {
+          $flag=1;
+          print ($eachAttr+"="+(`getAttr ($ctrl+"."+$eachAttr)`)+" in "+$ctrl+"\n");
+        }
+      }
+      else 
+      {
+        if(`getAttr ($ctrl+"."+$eachAttr)`!=0)
+        {
+          $flag=1;
+          print ($eachAttr+"="+(`getAttr ($ctrl+"."+$eachAttr)`)+" in "+$ctrl+"\n");
+        }
+      }
+    }
+    if($flag)
+    $retCtrls[size($retCtrls)]=$ctrl;
+  }
+  if(size($retCtrls)>0)
+  {
+    print ("Found "+size($retCtrls)+" Ctrls with Extra Values in "+size($allCtrls));
+    return $retCtrls;
+  }
+  else 
+  {
+    print ("Found "+size($retCtrls)+" Ctrls with Extra Values");
+    return $retCtrls;
+  }
+}
+global proc string Bp_importControl(string $type, string $_name)
+{
+  string $allPaths[];
+  tokenize(`getenv "MAYA_SCRIPT_PATH"`,";",$allPaths);
+  string $fullPath;
+  for($path in $allPaths)
+  {
+    if(`gmatch $path "*Bp_scripts*"`)
+     {
+      $fullPath=$path;
+      break;
+     }
+  }
+  $fullPath+="/Rigging_presets/";
+  string $ctrl;
+  switch($type)
+  {
+    case "leg":
+    file -import -type "mayaAscii" -mergeNamespacesOnClash false 
+                   -options "v=0;"  -pr 
+                  -loadReferenceDepth "all" 
+                  ($fullPath+"leg_ctrl.ma");
+    $ctrl="leg_ctrl";
+    break;
+    case "ikFk":
+    file -import -type "mayaAscii" -mergeNamespacesOnClash false 
+                     -options "v=0;"  -pr 
+                    -loadReferenceDepth "all" 
+                    ($fullPath+"ikFK_switch_ctrl.ma");
+      $ctrl="ikFk_ctrl";
+      break;
+    case "main":
+      file -import -type "mayaAscii" -mergeNamespacesOnClash false 
+                    -options "v=0;"  -pr 
+                    -loadReferenceDepth "all" 
+                    ($fullPath+"main_ctrl.ma");
+      $ctrl="main_ctrl";
+    break;
+    case "pole":
+      file -import -type "mayaAscii" -mergeNamespacesOnClash false 
+                    -options "v=0;"  -pr 
+                    -loadReferenceDepth "all" 
+                    ($fullPath+"poleVec_ctrl.ma");
+      $ctrl="pv_ctrl";
+    break;
+    case "arm":
+      file -import -type "mayaAscii" -mergeNamespacesOnClash false 
+                    -options "v=0;"  -pr 
+                    -loadReferenceDepth "all" 
+                    ($fullPath+"arm_ctrl.ma");
+      $ctrl="arm_ctrl";
+    break;
+    case "fingers":
+      file -import -type "mayaAscii" -mergeNamespacesOnClash false 
+                    -options "v=0;"  -pr 
+                    -loadReferenceDepth "all" 
+                    ($fullPath+"fingers_ctrl.ma");
+      $ctrl="fingers_ctrl";
+    break;
+    default:
+      error("no such control added!!");
+    break;
+  } 
+  $_name=`rename $ctrl ($_name+"_"+$ctrl)`;
+  return $_name;
+}

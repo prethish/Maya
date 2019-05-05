@@ -1,0 +1,140 @@
+global proc shelf_Custom () {
+    global string $gBuffStr;
+    global string $gBuffStr0;
+    global string $gBuffStr1;
+
+
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Constraints" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Constraints" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "Con" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "menuIconEdit.xpm" 
+        -image1 "menuIconEdit.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "DeleteConstraints" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "FileTextureManager" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "FileTextureManager" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "FileT" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "FileTextureManager" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Ninja_Light" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Ninja_Light" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "Light" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "\r\nsource \"Ninja_Light\";\r\nNinja_Light;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "User Script" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "User Script" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "PyC" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.png" 
+        -image1 "commandButton.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import maya.cmds as cmds\nif not cmds.commandPort(':4434', q=True):\n    cmds.commandPort(n=':4434') " 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+
+} 

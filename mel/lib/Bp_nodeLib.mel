@@ -1,0 +1,37 @@
+/*
+Script Name:Bp_rigProcLib
+Software Version:Maya 2009 onwards
+Description:My commonly used rig scripts
+*/
+
+proc Bp_nodeLib(){
+
+    print "--------->Intializing Bp node Libraries<--------\n";
+}
+
+
+global proc Bp_connectRange(string $_operation,string $_outObj,string $_outAttr,string $_inObj,string $_inAttr,string $_name)
+{
+  string $setRN=`createNode "setRange" -n ($_name+"setR")`;
+  //sett the attributes
+  switch($operation)
+  {
+    case "01connect":
+    //maxx 1 oldMax1
+    setAttr ($setRN+".mx") 1;
+    setAttr ($setRN+".omx") 1;
+    break;
+    case "01invert"://when input goes from 0 to -1 ,output is 0 to 1
+    //minx 1 oldminx -1 
+    setAttr ($setRN+".nx") 1;
+    setAttr ($setRN+".onx") -1;
+    break;
+    case "01reverse"://when input goes from 1 to 0 ,output is 0 to 1
+    // minx 1 oldmaxx 1
+    setAttr ($setRN+".nx") 1;
+    setAttr ($setRN+".omx") 1;
+    break;
+  }
+  connectAttr ($_inObj+"."+$_inAttr) ($setRN+".vx");
+  connectAttr  ($setRN+".ox") ($_outObj+"."+$_out`Attr);
+}

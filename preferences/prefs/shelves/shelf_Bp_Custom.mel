@@ -1,0 +1,437 @@
+global proc shelf_Bp_Custom () {
+    global string $gBuffStr;
+    global string $gBuffStr0;
+    global string $gBuffStr1;
+
+
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 39
+        -height 39
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Start notepad" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "notePad" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "ntPad" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "C:/Users/Magmyth-3/Documents/maya/2009-x64/scripts/notePAd.bmp" 
+        -image1 "C:/Users/Magmyth-3/Documents/maya/2009-x64/scripts/notePAd.bmp" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "system(\"start C:/Program Files (x86)/Notepad++/notepad++.exe\" );" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 39
+        -height 39
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "system(\"start C:/Program Files (x86)/Adobe/Adobe Photoshop CS3/P..." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Ps" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "PS" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "C:/Users/Magmyth-3/Documents/maya/2009-x64/scripts/PsIcon.bmp" 
+        -image1 "C:/Users/Magmyth-3/Documents/maya/2009-x64/scripts/PsIcon.bmp" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "system(\"start C:/Program Files (x86)/Adobe/Adobe Photoshop CS3/Photoshop.exe\" );" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 39
+        -height 39
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "string $sceneName=`file -q -sn -shn`;\r\rstring $no=`match \"[0-9]+..." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "IncSaveMayaFile" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "+Mb" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "C:/Users/Magmyth-3/Documents/maya/2009-x64/scripts/AutoSave.bmp" 
+        -image1 "C:/Users/Magmyth-3/Documents/maya/2009-x64/scripts/AutoSave.bmp" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "string $sceneName=`file -q -sn -shn`;\r\n\r\nstring $no=`match \"[0-9]+\" $sceneName`;\r\nstring $fileName;\r\nint $number;\r\n\r\nif($no==\"\") $number=1;\r\nelse $number=(int)$no;\r\n\r\n$number++;\r\n\r\nstring $extension[];\r\n\r\ntokenize $sceneName \".\" $extension;\r\n\r\nif($no==\"\") {\r\n $fileName=$extension[0];}\r\nelse {\r\n $fileName=`substitute $no $extension[0] \"\"`;}\r\n\r\nprint($fileName+$number+\".\"+$extension[1]);\r\n\r\nfile -rename ($fileName+$number+\".\"+$extension[1]);\r\nfile -s;\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "\r\r\rproc BP_MultiUV(string $sel[],string $targets[]){\r\rfor($obj i..." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "\r\r\rproc BP_MultiUV(string $sel[],string $targets[]){\r\rfor($obj i..." 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "Uv+" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "\r\n\r\n\r\nproc BP_MultiUV(string $sel[],string $targets[]){\r\n\r\nfor($obj in $targets){\r\n\tselect -r $sel[0] $obj;\r\nperformTransferAttributes 0;\r\ndelete -ch;\r\n}\t\r\n\r\n}\r\n\r\nwindow;\r\n\tcolumnLayout;\r\n\t\tbutton -l \"Select Source\" -c \"string $sel[]=`ls-sl`;\";\r\n\t\tbutton -l \"Select Targets\" -c \"string $targets[]=`ls-sl`;\";\r\n\t\tbutton -l \"Transfer Uvs\" -c \"BP_MultiUV($sel,$targets)\";\r\nshowWindow;\r\n\r\n\r\n" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "open Images Folder" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "open Images Folder" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "ImgP" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "\rstring $scenePath=dirname(`file -q -sn `);\r\rstring $imagesPath=`substitute \"/scenes\" $scenePath \"/images\"`;\r\rsystem(\"start explorer \"+toNativePath($imagesPath));" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "//zero out transformations using groups\r\n\r\nstring $sel[]=`ls-sl`..." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Zero Xform with group" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "offGrp" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "//zero out transformations using groups\r\n\r\nstring $sel[]=`ls-sl`;\r\nduplicate -n ($sel[0]+\"_off\") $sel[0] ;\r\nstring $shapes[]=`listRelatives -s ($sel[0]+\"_off\")`;\r\nfor($obj in $shapes)\r\ndelete $obj;\r\n\r\nparent $sel[0] ($sel[0]+\"_off\");\r\n" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "MirrorTransform" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "create mirror instance" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "MirrorTr" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "proc float Bp_roundoff( float $f, int $n )\n{\n\t// we divide if n < 0 to avoid numeric\n\t// precision problems\n\tif( $n > 0 )\n\t{\n\t\tfloat $roundScale = pow(10,$n);\n\t\tif( $f > 0 )\n\t\treturn( ((float)(int)($f * $roundScale + 0.5)) /$roundScale );\n\t\telse\n\t\treturn( ((float)(int)($f * $roundScale - 0.5)) /$roundScale );\n\t}\n\telse\n\t{\n\t\tfloat $roundScale = pow(10,-$n);\n\t\tif( $f > 0 )\n\t\treturn( ((float)(int)($f/$roundScale + 0.5)) *$roundScale );\n\t\telse\n\t\treturn( ((float)(int)($f/$roundScale - 0.5)) *$roundScale );\n\n\t}\n}\n\nproc Bp_selXNegVertices(string $obj){\n    select -clear;\n\tint $tmpNo[]=`polyEvaluate  -v $obj`;\n\tint $vertNo=$tmpNo[0];\n\n\tfor($i=0;$i<$vertNo;$i++){\n\n\t\tvector $pos=`pointPosition -l ($obj+\".vtx[\"+$i+\"]\")`;\n\t\tif(($pos.x)<0)\n\t\tcontinue;\n\t\telse if(($pos.x)>0){\n\t\t\tif(Bp_roundoff(($pos.x),2)!=0)\n\t\t\tselect -add ($obj+\".vtx[\"+$i+\"]\");\n\t\t}\n\t}\n}\n\nstring $sel[]=`ls-sl`;\nBp_selXNegVertices($sel[0]);\nstring $verts[] =`ls-sl`;\ndelete `polyListComponentConversion -tf $verts`;\nstring $inst[]=`instance $sel[0]`; \nscale -r -1 1 1 $inst[0];\nselect -clear;\nif (!`objExists SymObj_Layer`)\n{\n\tcreateDisplayLayer -name \"SymObj_Layer\" -number 1 -nr;\n\tsetAttr SymObj_Layer.displayType 2;\n}\n\neditDisplayLayerMembers -nr SymObj_Layer $inst[0];" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "\r\n//Create surface curves on polygons\r\nstring $sel[]=`ls-sl`;\r\ns..." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Create surface curves on polygons\r" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "srCrv" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "\r\n//Create surface curves on polygons\r\nstring $sel[]=`ls-sl`;\r\nstring $tmp[],$tmp2[],$tmpS;\r\nint $Eno[];\r\nclear($Eno);\r\n\r\n$tmpS=stringArrayToString($sel, \" \");\r\ntokenizeList($tmpS,$tmp);\r\n\r\nfor($obj in $tmp){\r\n\ttokenize($obj,\"[]\",$tmp2);\r\n\t$Eno[size($Eno)]=$tmp2[1];\r\n}\r\n\r\n$tmpS=\"\";\r\nfor($no in $Eno)\r\n$tmpS+=($no+\" \");\r\n\r\nif(size($sel)==2)\r\n\teval(\"polySelect -elp \"+$tmpS);\r\nelse\r\nif(size($sel)==1)\r\n\teval(\"polySelect -el \"+$tmpS);\r\nelse\r\nprint \"inValid Number of edges selected:Max 2\";\r\n\r\nDuplicateCurve;\r\ndelete -ch;\r\n//the duplicated cuves list along with the nodes\r\nstring $sel[]=`ls-sl`;\r\n\r\nattachCurve  -ch 0 -rpo 1 -kmk 1 -m 0 -bb 0.5 -bki 0 -p 0.1 $sel;\r\nrename  $sel[0] \"CrvM#\";\r\nstringArrayRemoveAtIndex(0,$sel);\r\ndelete $sel;\r\nxform -cp;\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "\r\nproc BPMirrorTransform(int $MAxis){\r\n    \r\n    string $sel[]=`..." 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "\r\nproc BPMirrorTransform(int $MAxis){\r\n    \r\n    string $sel[]=`..." 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "tinyBoldLabelFont" 
+        -imageOverlayLabel "mrTrr" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.xpm" 
+        -image1 "commandButton.xpm" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "\r\nproc BPMirrorTransform(int $MAxis){\r\n    \r\n    string $sel[]=`ls- sl`,$tmp[];\r\n    vector $tmpT;\r\n    \r\n    switch($MAxis){\r\n        case 1 ://x\r\n        \r\n            for($obj in $sel){\r\n                $tmpT=`xform -q -ws -t $obj`;\r\n                $tmp=`duplicate $obj`;\r\n                xform -ws -t (($tmpT.x)*-1) ($tmpT.y) ($tmpT.z) $tmp[0];\r\n            } \r\n        break;\r\n        \r\n        case 2 ://y\r\n        \r\n            for($obj in $sel){\r\n                $tmpT=`xform -q -ws -t $obj`;\r\n                $tmp=`duplicate $obj`;\r\n                xform -ws -t ($tmpT.x) (($tmpT.y)*-1) ($tmpT.z) $tmp[0];\r\n            } \r\n        break;\r\n        \r\n        case 3 ://z\r\n        \r\n            for($obj in $sel){\r\n                $tmpT=`xform -q -ws -t $obj`;\r\n                $tmp=`duplicate $obj`;\r\n                xform -ws -t ($tmpT.x) ($tmpT.y) (($tmpT.z)*-1) $tmp[0];\r\n            } \r\n        break;  \r\n        default:\r\n            print \"error in creating mirror transforms\";\r\n            return;\r\n        break;\r\n    }\r\n     print (\"Created Mirror tranforms across \"+$MAxis);\r\n}\r\n\r\nwindowPref -ra;\r\n    window -wh 100 100 ;\r\n    columnLayout -rs 5;\r\n        text -l \"Choose Mirror Axis:\";\r\n        radioButtonGrp -numberOfRadioButtons 3\r\n             -labelArray3 \"X\" \"Y\" \"Z\" -sl 1\r\n             -cw3 30 30 30\r\n             BpMtRadioBtn;  \r\n        button -l \"Mirror\" -c \"int $a=`radioButtonGrp -q -sl BpMtRadioBtn`;BPMirrorTransform($a);\"  ; \r\nshowWindow;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 43
+        -height 43
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Cut polygons" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Bp_cutGeo" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "CutGeo" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "C:/Users/Prethish/Documents/maya/2016.5/prefs/icons/bp_cutTool.png" 
+        -image1 "C:/Users/Prethish/Documents/maya/2016.5/prefs/icons/bp_cutTool.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "source Bp_cutGeo;" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Select an object(s)" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "Freeze Transformations" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "FT" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "menuIconModify.png" 
+        -image1 "menuIconModify.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "FreezeTransformations" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "Unfreeze" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "import pymel.core\n\nobj = pymel.core.ls(sl=True)[0]\nobj.centerPiv..." 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "UnFT" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "pythonFamily.png" 
+        -image1 "pythonFamily.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "import pymel.core\n\nobj = pymel.core.ls(sl=True)[0]\nobj.centerPivots()\nstore_pos,reset_pos = [pymel.core.group(empty=True,name=node) for node in ('store','reset')]\npymel.core.delete(pymel.core.parentConstraint(obj,reset_pos))\npymel.core.delete(pymel.core.parentConstraint(obj,store_pos))\n\npymel.core.parent(obj,reset_pos)\nreset_pos.t.set(0,0,0)\nreset_pos.r.set(0,0,0)\n\npymel.core.parent(obj,w=True)\npymel.core.makeIdentity(obj, apply=True, t=1, r=1, s=1, n=0)\n\npymel.core.delete(pymel.core.parentConstraint(store_pos,obj))\npymel.core.delete([store_pos,reset_pos])" 
+        -sourceType "python" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+    shelfButton
+        -enableCommandRepeat 1
+        -enable 1
+        -width 35
+        -height 35
+        -manage 1
+        -visible 1
+        -preventOverride 0
+        -annotation "source \"Bp_boneTools\";" 
+        -enableBackground 0
+        -backgroundColor 0 0 0 
+        -highlightColor 0.321569 0.521569 0.65098 
+        -align "center" 
+        -label "source \"Bp_boneTools\";" 
+        -labelOffset 0
+        -rotation 0
+        -flipX 0
+        -flipY 0
+        -useAlpha 1
+        -font "plainLabelFont" 
+        -imageOverlayLabel "BNTs" 
+        -overlayLabelColor 0.8 0.8 0.8 
+        -overlayLabelBackColor 0 0 0 0.5 
+        -image "commandButton.png" 
+        -image1 "commandButton.png" 
+        -style "iconOnly" 
+        -marginWidth 1
+        -marginHeight 1
+        -command "source \"Bp_boneTools\";" 
+        -sourceType "mel" 
+        -commandRepeatable 1
+        -flat 1
+    ;
+
+} 

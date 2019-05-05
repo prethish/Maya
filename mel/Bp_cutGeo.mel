@@ -1,0 +1,169 @@
+global string $gPlane="";
+global string $gObject="";
+
+
+global proc Bp_cutGeoByEdge()
+{
+  //get the selected object edge`
+  string $sel[]=`ls-sl`;
+  //get the object name
+  global string $gObject;
+  $gObject=`match "^[^\.]*" $sel[0]`;
+  polySelectSp -loop;
+  string $edgeList[] = `filterExpand -ex false -sm 32`;
+  select -r $edgeList;
+  //split along edge
+  polySplitEdge -ch 0 $edgeList;
+  Bp_separatePoly($gObject);
+}
+
+global proc Bp_separatePoly(string $object)
+{
+  //separate the polygon
+  string $createdObjs[]=`polySeparate -ch 0 $object`;
+  string $parents[]=`listRelatives -parent $object`;
+  if(size($parents)==0)
+  {
+    parent -w $createdObjs;
+  }
+  else
+  {
+    parent  $createdObjs $parents[0]; 
+  }
+  delete $object;
+  rename $createdObjs[0] $object;
+  Bp_setCurrentPlane($object);
+}
+
+global proc Bp_createCutPlane()
+{
+  string $sel[]=`ls -fl -sl`;
+  global string $gObject;
+  $gObject=`match "^[^\.]*"$sel[0]`;
+  //create a plane at the center.
+  PolySelectConvert 3;
+  string $clst[]=`cluster`;
+  select -cl;//clear selection to prevent joint from getting parent under the transform
+  string $plane[]=`polyPlane -axis 0 0 1 -sx 1 -sy 1 -n "cutGeo_plane"`;
+  delete `parentConstraint $clst[1] $plane[0]`;
+  delete $clst[0];
+  global string $gPlane;
+  $gPlane=$plane[0];
+}
+
+global proc Bp_swapNames()
+{
+  string $sel[]=`ls -l -sl`;
+  string $firstName=`match "[^|]*$"$sel[0]`;
+  string $secondName=`match "[^|]*$"$sel[1]`;
+  //cheat to avoid extra number rename 
+  string $newName=`rename $sel[0] ($secondName+"t")`;
+  rename $sel[1] $firstName;
+  //remove the last character
+  string $text=`substring $newName 1 (size($newName)-1)`;
+  rename  $newName $text;
+}
+global proc Bp_deleteCutPlane()
+{
+  global string $gPlane;
+  if( `objExists $gPlane` ) 
+  {
+    delete $gPlane;
+  } 
+  else 
+  {
+    warning("No surface exists");
+  }
+}
+
+global proc Bp_cutGeoByPlane()
+{
+  global string $gPlane,$gObject;
+
+  vector $centerP=`xform -q -ws -t $gPlane`;
+  vector $rotationP=`xform  -q -ws -ro $gPlane`;
+
+  polyCut -pc ($centerP.x) ($centerP.y) ($centerP.z) 
+  -ro  ($rotationP.x) ($rotationP.y) ($rotationP.z)
+  -ef 1 -eo 0 0 0 $gObject;
+  Bp_separatePoly($gObject);
+}
+global proc Bp_cutGeoCleanUp()
+{
+  Bp_deleteCutPlane();
+  deleteUI Bp_cutGeoWin;
+}
+global proc Bp_allignPlaneToJnt()
+{
+global string $gPlane;
+//get the current selection
+string $sel[]=`ls-sl`;
+string $jnt=$sel[0];
+string $children[]=`listRelatives -children $jnt`;
+string $child=$children[0];
+
+delete `pointConstraint -offset 0 0 0 -weight 1 
+              $jnt $gPlane`;
+
+delete `aimConstraint -offset 0 0 0 -weight 1 
+              -aimVector 0 0 1 -upVector 0 1 0 
+              -worldUpType "vector" -worldUpVector 0 1 0
+              $child $gPlane`;
+}
+global proc Bp_mirrorPlane()
+{
+  int $axis=`radioButtonGrp -q -sl cutGeoAxis_rbg`;
+  vector $mirAxis;
+  global string $gPlane;
+
+  switch($axis)
+  {
+  case 1:
+    $mirAxis=<<-1,1,1>>;
+    break;
+  case 2:
+    $mirAxis=<<1,-1,1>>;
+    break;
+  case 3:
+    $mirAxis=<<1,1,-1>>;
+    break;
+  }
+  string $grp=`group -w -n "tmpGrp" $gPlane`;
+  xform -os -piv 0 0 0 $grp;
+  scale ($mirAxis.x) ($mirAxis.y) ($mirAxis.z) $grp;
+  ungroup $grp;
+}
+
+global proc Bp_setCurrentPlane(string $name)
+{
+  textField -e -tx $name currentPlane_txt;
+}
+	//delete the open instance of the window
+  if(`window -exists Bp_cutGeoWin`) 
+		deleteUI Bp_cutGeoWin;
+//delete any window preferences set
+	if(`windowPref -exists Bp_cutGeoWin`)
+        windowPref -r Bp_cutGeoWin;
+		//display widow
+	window -wh 165 180 -tbm 0 Bp_cutGeoWin;
+
+		columnLayout  -adj 1 -cw 160 -cat "both" 1 -rs 2;
+		//selected object
+    textField -en 0 -bgc 1 1 .5 currentPlane_txt;
+   radioButtonGrp -numberOfRadioButtons 3  -cw3 35 35 35
+      -labelArray3 "X" "Y" "Z" 
+      -sl 1
+       cutGeoAxis_rbg;
+			rowColumnLayout -nc 2;					
+				button -l "CutByEdge" -c "Bp_cutGeoByEdge()"; 
+        button -l "CutByPlane" -c "Bp_cutGeoByPlane()"; 
+				button -l "CreateCutPlane" -c "Bp_createCutPlane()";				
+				button -l "DeleteCutPlane" -c "Bp_deleteCutPlane()";
+        button -l "MirrorPlane" -c "Bp_mirrorPlane()";
+        button -l "PlaneToJnt" -c "Bp_allignPlaneToJnt()";
+        button -l "SwapNames" -c "Bp_swapNames()"; 
+			setParent..;
+      separator;
+			button -l "Close Window" -bgc .5 .35 .35 
+              -c "Bp_cutGeoCleanUp()";
+	showWindow Bp_cutGeoWin;

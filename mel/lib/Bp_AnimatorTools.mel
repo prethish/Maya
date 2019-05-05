@@ -1,0 +1,103 @@
+proc string [] Bp_getAllsceneSets()
+{
+    string $setfilter=`outlinerEditor -q -setFilter "outlinerPanel1"`;
+    string $sets[]=`lsThroughFilter -nodeArray $setfilter`;
+    string $returnSets[]=stringArrayRemove({"defaultLightSet","defaultObjectSet"},$sets);
+    return $returnSets;
+}
+
+//proc to check which all contols should not be set to one
+proc int Bp_isResetToOneAttr(string $attr)
+{
+  string $patterns[]={"scaleX","scaleY","scaleZ","visibility","gScale"};
+  int $found = stringArrayContains($attr, $patterns);
+  return $found;
+}
+proc int Bp_isCommonAttr(string $attr)
+{
+  string $patterns[]={"translateX","translateY","translateZ","rotateX","rotateY","rotateZ"};
+  int $found = stringArrayContains ($attr, $patterns);
+  return $found;
+}
+global proc Bp_resetObjects(string $list[])
+{
+  for($obj in $list)
+  {
+    //get the keyable attributes
+    string $attr[]=`listAttr  -k $obj`;
+    for($eachAttr in $attr)
+    {
+      //check whether to reset to zero or 1
+      if(Bp_isResetToOneAttr($eachAttr))
+      setAttr ($obj+"."+$eachAttr) 1;
+      else if (Bp_isCommonAttr($eachAttr))
+      setAttr ($obj+"."+$eachAttr) 0;
+      else
+      {
+        //get the deafult set value and apply it
+          if (`addAttr -q -at ($obj+"."+$eachAttr)`=="double")
+          {
+              float $defaultVal=`addAttr -q -dv ($obj+"."+$eachAttr)`;
+              setAttr ($obj+"."+$eachAttr) $defaultVal;
+          }
+          else
+          setAttr ($obj+"."+$eachAttr) 0;
+      }
+    }
+  }
+}
+
+global proc Bp_AT_executeUI(string $operation)
+{
+    string $controlSetName="rig_controls_set";
+    string $sel[]=`ls-sl`;
+    swtich($operation)
+    {
+        case "keyAll":
+        select -r $controlSetName;
+        setKeyframe;
+        select -r $sel;
+        break;
+        case "keySelected":
+        setKeyframe;
+        break;
+        case "resetAll":
+        select -r $controlSetName;
+        string $all[]=`ls-sl`;
+        Bp_resetObjects($all);
+        select -r $sel;
+        break;
+        case "resetSelected":
+        Bp_resetObjects($sel);
+        break;
+        default:
+        warning("\nNoSuch Option in Bp_AT_executeUI \n");
+        break;
+    }
+}
+if(`window -q -exists Bp_animTools_win`)
+deleteUI -wnd Bp_animTools_win;
+
+if(`windowPref -exists Bp_animTools_win`)
+windowPref -remove Bp_animTools_win;
+
+window -t "Bp_AnimTools v0.1" -rtf 1  -s 1 -tbm 0 Bp_animTools_win;
+columnLayout -cat "both" 1;
+text -l "Key";
+rowColumnLayout -nc 2 ;
+iconTextButton -style "iconAndTextVertical"
+    -image1 "setKeyframe.png" -label "ALL";
+iconTextButton -style "iconAndTextVertical"
+    -image1 "setKeyframe.png" -bgc .1 .6 .3 -label  "Selected";
+setParent ..;
+separator;
+text -l "Reset";
+rowColumnLayout -nc 2 ;
+iconTextButton -style "iconAndTextVertical"
+    -image1 "undo.png" -label "ALL";
+iconTextButton -style "iconAndTextVertical"
+    -image1 "undo.png" -bgc .1 .6 .3 -label "Selected";
+setParent..;
+separator;
+button -l "closeWin" -bgc .6 .3 .1 - c "deleteUI -wnd Bp_animTools_win";
+showWindow Bp_animTools_win;

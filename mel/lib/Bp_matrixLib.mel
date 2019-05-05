@@ -1,0 +1,41 @@
+proc Bp_matrixLib()
+{
+  print("Init Matrix Lib\n");
+}
+
+//set the matrix as unity
+proc setUnitMatrix(string $obj)
+{
+	xform -m 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 $obj;
+}
+
+global proc string getMatOutputAttr(string $node)
+{
+  string $attr=".t";
+  string $nodeType=`nodeType $node`;
+  switch ($nodeType)
+  {
+    case "plusMinusAverage":
+      $attr=".o3";
+      break;
+    case "vectorProduct":
+      $attr=".o";
+      break;
+    case "multiplyDivide":
+      $attr=".o";
+      break;
+    case "transform":
+      $attr=".t";
+      break;
+    case "decomposeMatrix":
+    $attr=".outputTranslate";
+    break;
+  }
+  return $attr;
+}
+
+global proc Bp_decompose(string $node,string $name)
+{
+	string $decomposeN=`createNode "decomposeMatrix" -n ($name + "_decomposeN")`;
+	connectAttr -f ($node+".worldMatrix[0]") ($decomposeN+".inputMatrix");
+}

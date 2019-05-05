@@ -1,0 +1,72 @@
+Bp_jointLib
+
+global proc string[] Bp_removeJntDivisions(string $sel[])
+global proc Bp_divideBone(string $jnt,int $noDiv)
+global proc Bp_createDistributedRoll(string $_startJnt,string $_endJnt,string $_name)
+global proc string Bp_createJntOnCurve(int $op, int $divisions,string $curve, string $name){
+global proc Bp_createJnt(int $choice)
+global proc Bp_createJointGeo()
+
+Bp_matrixLib
+
+global proc string getMatOutputAttr(string $node)
+global proc Bp_decompose(string $node,string $name)
+
+Bp_procLib
+
+ /*global proc matrix convertToMatrix(float v[])
+global proc float Bp_getDistance(string $_start,string $_end)
+global proc vector Bp_convertFloatToVector(float $f[])
+global proc string Bp_getShape(string $obj){
+global proc string Bp_getFirstElement(string $arr[])
+global proc Bp_addNodeSuffix(string $object)
+global proc Bp_parent()
+global proc Bp_openScriptPath(string $scriptName)
+global proc string Bp_getMyScriptPath()
+
+Bp_renameLib
+
+global proc Bp_renameProcLib(){
+global proc Bp_removeEndNumberAndEdit(string $_name)
+
+Bp_rigLib
+
+global proc string Bp_attachLocOnCurve(string $name,string $curve,float $uValue)
+global proc string Bp_createControlsOnCurve(string $name,string $curve)
+global proc string Bp_createfollicle(string $object,float $u,float $v,string $suffix,int $count)
+global proc string [] Bp_findRelatives(string $_jnts[]){
+global proc string Bp_createRigGrps(string $_name){
+global proc string Bp_createOffsetGrp(string $_object)
+global proc string [] Bp_createNullGrps(string $_objs[])
+global proc string Bp_createPV(string $_ikH, string $_name)
+global proc string Bp_createCtrl(string $_type, string $_name){
+global proc string Bp_createIkHandle(string $_iksolver, string $_ikstartJoint, string $_ikendJoint,string $_ikName){
+global proc string Bp_createShpCtrl(string $_jnt,string $_type)
+global proc string[] Bp_createJntSpline(string $_name)
+global proc string Bp_createSDK(string $_driver, string $_driven, float $_driverV[], float $_drivenV[] ){
+global proc Bp_visibilityToggle(string $_onGrp[],string $_offGrp[], string $_attr, string $_ctrl){
+global proc Bp_replaceAttr(string $_attrAlias)
+global proc Bp_addAttr(string $obj, string $attrName, string $attrType, float $minV, float $maxV)
+global proc Bp_multiConnectAttr(string $outObj, string $outAttr, string $targets[],string $inAttr){
+global proc Bp_blend2Attr(string $sourceObj, string $targetObj, string $sourceAttr, string $targetAttr)
+global proc string [] Bp_blend2CompoundAttrs(string $sourceObjs[], string $targetObj, string $sourceAttrs[], string $targetAttrs[])
+global proc Bp_resetAttrs()
+global proc int Bp_isResetToZeroAttr(string $attr)
+global proc Bp_directConnect(string $outObj,string $inObj,string $attrs[])
+global proc Bp_toggleLockAndHideAttr(string $sel[], string $attr)
+global proc Bp_toggleLockAttr(string $sel[],string $attr)
+global proc string[] Bp_checkCtrls()
+global proc string Bp_importControl(string $type, string $_name)
+
+Bp_sysLib
+
+Bp_vectorLib
+
+global proc string getOutputAttribute(string $node)
+global proc Bp_normalize(string $node,string $name)
+global proc Bp_distance(string $sel[],string $name)
+global proc Bp_vectorProd(string $firstN,string $secondN,string $op,string $name)
+global proc Bp_createLocatorVector(string $name)
+global proc Bp_createVector(string $firstN,string $secondN,string $name)
+global proc Bp_addVectors(string $sel[],string $name)
+global proc Bp_subVectors(string $sel[],string $name)

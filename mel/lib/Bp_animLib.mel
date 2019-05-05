@@ -1,0 +1,35 @@
+//Bp animation library
+//functions 
+//1.getKeyframes-gets the frame no of the keyframes of selected objects.
+
+proc int[] Bp_getKeyFrames(string $object,int $rangeStart,$rangeEnd){
+//example cmd-keyframe -time "0:20" -query -timeChange -valueChange surface1
+
+	int $keyframes[];
+	int $currentFrame,$nextFrame;
+	//must check to see if the rangeStart value is a keyframe
+	$nextFrame=`findKeyframe -time ($rangeStart-1) -which "next" $object`;
+	if($nextFrame==$rangeStart)
+		$keyframes[size($keyframess)]=$currentFrame;
+
+	$currentFrame=$rangeStart;
+	do{
+		$nextFrame=`findKeyframe -time $currentFrame -which "next" $object`;
+		$keyframes[size($keyframes)]=$nextFrame;
+		$currentFrame=$nextFrame;
+	}while($currentFrame<$rangeEnd);
+
+	return $keyframes;
+}
+
+proc int [] Bp_getKeyRange(string $objects[]){
+
+if($objects[0]=="full_scene")
+	select -r `ls -type "animCurve"`;
+else
+	select -r $objects;
+	
+	return ({`findKeyframe -timeSlider -which "first"`,`findKeyframe -timeSlider -which "last"`});
+}
+
+

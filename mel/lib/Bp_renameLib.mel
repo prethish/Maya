@@ -1,0 +1,115 @@
+global proc Bp_renameProcLib(){
+
+print("Initilaizing Bp Lib::Rename!!\n");
+
+}
+
+//Text operations
+//1.fastRename-Creates an NameFeild Forthe selected objects
+//2.remove unwanted text
+proc Bp_rename(string $op,string $text){
+
+	switch ($op){
+
+  case "prefix":
+    searchReplaceNames "^" $text "selected";
+  break;
+  
+	case "fast":
+		string $sel[]=`ls-sl`;
+		if(`window -exists tt`)
+		  deleteUI -wnd tt;
+		window -w 300 tt;
+			columnLayout -cat "both" 1 -adj 1;
+			for($obj in $sel)
+			  evalEcho("nameField -rfc \"select -r "+$obj+";\" -o  $obj");
+			select -cl;
+		showWindow tt;	
+		break;
+		
+	case "remove":
+		string $text;
+		string $sel[]=`ls -sl`;
+		string $result = `promptDialog
+		-title "Rename Object"
+		-tx $sel[0]
+		-message "Remove unWanted Text"
+		-button "OK" -button "Cancel"
+		-defaultButton "OK" -cancelButton "Cancel"
+		-dismissString "Cancel"`;
+
+		if ($result == "OK") {
+			$text = `promptDialog -query -text`;
+
+			for($obj in $sel){
+				string $text2=`substitute $text $obj ""`;
+				rename  $obj $text2;
+			}
+
+		}
+		
+		break;
+		
+	case "renameIkh":
+		string $inpText;
+		string $result = `promptDialog
+		-title "Rename IkHandle"
+		-message "Enter Name:"
+		-button "OK" -button "Cancel"
+		-defaultButton "OK" -cancelButton "Cancel"
+		-dismissString "Cancel"`;
+
+		if ($result == "OK") {			
+			$inpText = `promptDialog -query -text`;
+			string $inpList[];
+			tokenizeList($inpText,$inpList);
+			string $sel[]=`ls-sl`;
+			if(size($sel)!=size($inpList))
+			error "Invalid No of arguments";
+			
+			int $i=0;
+			for($obj in $sel){
+				
+				string $IkHName= $inpList[$i];		
+				string $temp[];
+
+				$temp[0]=`ikHandle -q -endEffector  $obj`;
+				rename $temp[0] ($IkHName+"_endEff");
+				
+				if(`ikHandle -q -solver  $obj`=="ikSplineSolver"){
+					$temp[0]=`ikHandle -q -curve $obj`;
+					rename $obj ($IkHName+"_SplineikH");
+					tokenize $temp[0] "|" $temp;   //error
+					rename $temp[0] ($IkHName+"_SplineCrv");
+				}
+				else{
+					rename $obj ($IkHName+"_ikH");
+				}
+				$i++;
+			}
+			
+		}
+		
+		break;
+		
+	}
+}
+
+//string $prefix=`match "^[^_]*" $sel[0]`;
+//string $removeLast=`match "^.*_" $hipJoint`;
+//arrow_mat1-->arrow1_mat
+global proc Bp_removeEndNumberAndEdit(string $_name)
+{
+  //split by the token "_"
+  //eg:arrow_mat1-->arrow and mat1
+  string $splitWords[];
+  tokenize($_name,"_",$splitWords);
+
+  //find the number at the end of the second split word
+  string $endNumber=`match "[0-9]+$" $splitWords[1]`;
+  string $stringWithoutNumber=`match "^.+[^0-9]" $splitWords[1]`;
+
+  string $newName=($splitWords[0]+$endNumber+"_"+$stringWithoutNumber);
+
+  rename $_name $newName;
+}

@@ -1,0 +1,16 @@
+---
+DebugTools:
+  PrintEnv: from maya_utils.libs import env;env.get_environment()
+TestTools:
+  Rigging:
+    Sphere: from maya import cmds;cmds.sphere()
+    Test: some
+Tools1: some 
+Tools2: some 
+Tools3: some
+Tools4:
+  Test1: some 
+  Test2: some 
+  Test3: some 
+  Test4: some 
+  Test5: some 

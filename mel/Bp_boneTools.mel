@@ -1,0 +1,141 @@
+proc Bp_boneTools()
+{
+ print("Init Bone Tools!!");
+ source "lib/Bp_jointLib";
+}
+
+global proc string Bp_getFirstElement(string $sel[])
+{
+  return $sel[0];
+}
+
+global proc Bp_BT_UI_execute(string $operation)
+{
+  string $sel[]=`ls-sl`;
+	string $name=`textFieldGrp -q -tx name_obj`;
+  string $obj=`textFieldButtonGrp -q -tx sel_obj`;
+  int $no=`intSliderGrp -q -v no_div`;
+	string $firstN=$sel[0];
+	string $secondN=$sel[1];
+	switch($operation)
+	{
+		case "divide":
+			Bp_divideBone($firstN,$no);
+		break;		
+    case "parentSel":
+			Bp_parent();
+		break;		
+
+    case "curveDiv":
+      int $op=`radioButtonGrp -q -sl op_crvDiv`;
+			Bp_createJntOnCurve($op,$no,$firstN,$name);
+		break;  
+    case "createJnt":
+      int $op=`radioButtonGrp -q -sl op_createJnt`;
+			Bp_createJnt($op);
+		break;
+    case "addShape":
+      string $sel[]=`ls -sl`;
+      string $cShape[]=`listRelatives -shapes $sel[0]`;
+      parent -add -shape $cShape[0] $sel[1];
+      delete $sel[0];
+    break;
+    
+    default:
+    print("no Such OPtion!!");
+
+    break;
+	}	
+}
+
+
+//delete the open instance of the window
+if(`window -exists Bp_boneToolsWin`) 
+	deleteUI Bp_boneToolsWin;
+//delete any window preferences set
+if(`windowPref -exists Bp_boneToolsWin`)
+    windowPref -r Bp_boneToolsWin;
+	//display widow
+window -wh 450 500 Bp_boneToolsWin;
+
+	columnLayout  -adj 1 -cw 450 -cat "both" 1 -rs 2;
+      textFieldGrp
+      -label "Name"
+      -text "name"
+       name_obj;
+	    textFieldButtonGrp
+        -label "Selected Object"
+        -cw 1 75
+        -bl "<<getSelectedObject"
+        -text  "Object"
+        -bc "string $sel[]=`ls-sl`;textFieldButtonGrp -e -tx $sel[0] sel_obj;"
+         sel_obj;
+      intSliderGrp -label "Number" -field true
+          -minValue 1 -maxValue 100
+          -fieldMinValue 1 -fieldMaxValue 100
+          -value 1 
+          no_div;
+
+	//selected object
+    text -l "Creation";
+
+		rowLayout -nc 4;	
+      iconTextButton -style "iconAndTextVertical"
+    		-image1 "kinJoint.png" 
+				-bgc 0.0 1.0 1.0 
+				-l "Joint" 
+				-c "JointTool";
+      columnLayout;
+      radioButtonGrp -numberOfRadioButtons 4  -cw 1 55 -vr 
+          -labelArray4 "vertex" "vertices" "loop" "loops" 
+          -sl 1
+           op_createJnt;
+      button -bgc 0.0 1.0 1.0 
+				-l "Create Joint" 
+				-c "Bp_BT_UI_execute(\"createJnt\")";
+      setParent..;
+      columnLayout;
+      radioButtonGrp -numberOfRadioButtons 2  -cw 1 35
+      -labelArray2 "CV" "Div" 
+      -sl 1
+       op_crvDiv;
+			button -bgc 0.0 1.0 1.0 
+				-l "Curve distribute" 
+				-c "Bp_BT_UI_execute(\"curveDiv\")";
+      setParent..;
+      iconTextButton -style "iconAndTextVertical"
+    		-image1 "selectByObject.png" 
+				-bgc 0.0 1.0 1.0 
+				-l "Divider" 
+				-c "Bp_BT_UI_execute(\"divide\")";
+		setParent..;
+    
+    text -l "Editing";
+		rowLayout -nc 4;					
+			iconTextButton -style "iconAndTextVertical"
+    		-image1 "locator.png" 
+				-bgc 0.0 1.0 0.0 
+				-l "ReRoot"
+				-c "RerootSkeleton"; 
+			iconTextButton -style "iconAndTextVertical"
+    		-image1 "selectByObject.png" 
+				-bgc 0.0 1.0 1.0 
+				-l "ParentSel" 
+				-c "Bp_BT_UI_execute(\"parentSel\")";
+
+      iconTextButton -style "iconAndTextVertical"
+    		-image1 "selectByObject.png" 
+				-bgc 0.0 1.0 1.0 
+				-l "AddShape" 
+				-c "Bp_BT_UI_execute(\"addShape\")";
+        
+      iconTextButton -style "iconAndTextVertical"
+    		-image1 "selectByObject.png" 
+				-bgc 0.0 1.0 1.0 
+				-l "Add Geo" 
+				-c "Bp_createJointGeo()";
+		setParent..;
+    
+showWindow Bp_boneToolsWin;
+
+

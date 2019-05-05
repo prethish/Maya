@@ -1,0 +1,169 @@
+/********
+File operation functions for maya
+	Author:B.Prethish
+	Software version:Maya 2009
+	Platfrom:Windows XP
+
+	It contains the following procedures.
+		All of the files are stored in the script directory of maya
+		1.delFile -to delete a file  
+			arguments:(string) filename
+			return data:none
+		2.eraseFile -to turncate a existing file 
+			arguments:(string) filename
+			return data:none
+		3.createFile -create a new file
+			arguments:(string) filename
+			return data:none
+		4.fileWrite -to append data to a file
+			arguments:(string) data, (string) filename
+			return data:none
+		5.fileRead -to read data from a file
+			arguments:(string) filename
+			return data:string array	
+		5.fileWriteArray-special function to write string array into a file
+			arguments:(string) filename
+			return data:none	
+		6.copyFile-to copy files
+			arguments:(string) old path,new path,filename
+			return data:none
+		7.createDir
+		8.remove Empty Directories
+
+***********/
+
+//deletes the file 
+proc Bp_delFile(string $fname)
+{
+	string $FileName = ( `internalVar -userScriptDir` + $fname );
+	sysFile -delete $FileName; 
+	print("Erased file:"+$FileName+"\n");
+}
+
+
+//erases all the contents of a file
+proc Bp_eraseFile(string $fname){
+
+	string $FileName = ( `internalVar -userScriptDir` +$fname );
+	int $fileId=`fopen $FileName "w"`;
+	fclose $fileId;
+
+}
+
+//creates a new empty file with file name fname in the script folder
+proc Bp_createFile(string $fname){
+
+	string $FileName = ( `internalVar -userScriptDir` + $fname );
+	int $fileId=`fopen $FileName "w"`;
+	fclose $fileId;
+	print("File "+$fname+" created!!"+"\n");
+
+}
+
+//open the file and append single data
+//"\n" is added at the end of each line to seperate the words
+proc Bp_fileWrite(string $wrStr,string $fname) {
+
+	string $FileName = ( `internalVar -userScriptDir` +$fname );
+	int $fileId=`fopen $FileName "a"`;
+	if($fileId!=0){
+		fprint $fileId ($wrStr+"\n");
+		
+		print ("Wrote "+$wrStr+"into "+$FileName+"\n"); 
+	}
+	else
+	print ("Error opening file"+"\n"); 
+	fclose $fileId;
+
+}
+
+//open the file and append array data
+proc Bp_fileWriteArray(string $wrArr[],string $fname) {
+
+	string $FileName = ( `internalVar -userScriptDir` +$fname );
+	int $fileId=`fopen $FileName "a"`;
+	if($fileId!=0){
+		for($eachString in $wrArr)
+		fprint $fileId ($eachString+"\n");
+		print ("Wrote array into "+$FileName+"\n"); 
+		
+	}
+	else
+	print ("Error opening file"+"\n"); 
+	fclose $fileId;
+}
+
+
+//get the data from the file and return it as a string array
+proc string [] Bp_fileRead(string $fname)
+{
+	string $FileName = ( `internalVar -userScriptDir` + $fname );
+	int $fileId=`fopen $FileName "r"`;
+	string $lines[];
+	int $i=0;
+	string $nextLine = `fgetline $fileId`;
+	while ( size( $nextLine ) > 0 ) {
+		$lines[$i]=strip($nextLine); //removes return character from the end of the each line
+		$nextLine = `fgetline $fileId`;
+		
+		$i++;
+	}
+	fclose $fileId;
+	print($lines);
+	return ($lines);
+}
+
+//copy files from one location to another
+proc Bp_copyFile(string $currentPath, string $newPath , string $fileName){
+
+	string $srcPath =(toNativePath($currentPath)+"\\"+$fileName) ;
+	string $destPath = (toNativePath($newPath)+"\\"+$fileName);
+	if(`sysFile -copy $destPath $srcPath`)
+	print($fileName+" successfully copied.\n");      
+
+}
+
+//create directory
+proc string Bp_createDir(string $path, string $dirName){
+
+	if(`sysFile -makeDir ($path+"/"+$dirName)`){
+		print ("1 directory successfully created.\n");
+		return($path+"/"+$dirName);
+	}
+	else
+	        return("");
+
+}
+
+proc Bp_removeEmptyDir(string $path)
+{
+        if($path==""){
+        print"Error------>File Path Empty \n";
+        return;
+        }
+
+        print("---------->Scanning Directories at path:"+$path+"\n");
+
+        string $dirContents[];
+        int $i=0;
+        if(!endsWith($path,"/") )
+                $path+="/";
+
+        $dirContents=`getFileList -folder $path`;
+
+        for($item in $dirContents)
+        {
+                if(`filetest -d ($path+$item)`)
+                {
+                        if(`sysFile  -removeEmptyDir ($path+$item)`)
+                        $i++;
+                        else{
+                            Bp_removeEmptyDir($path+$item);           
+                            if(`sysFile  -removeEmptyDir ($path+$item)`)
+                                $i++;
+                        }
+                }
+        }
+
+        print("---------->Removed "+$i+" Directories \n");
+}

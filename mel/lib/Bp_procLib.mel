@@ -1,0 +1,154 @@
+proc Bp_procLib()
+{
+ print("Init proc Lib!!");
+ source "lib/Bp_renameLib";
+}
+//convert the 16 float values to matrix form
+ /*global proc matrix convertToMatrix(float v[])
+{
+	return ( <<$v[0], $v[1], $v[2], $v[3]; 
+             $v[4], $v[5], $v[6], $v[7];
+             $v[8], $v[9], $v[10], $v[11];
+             $v[12], $v[13], $v[14], $v[15]>> );
+} */
+
+global proc float Bp_getDistance(string $_start,string $_end)
+{
+  vector $p1=Bp_convertFloatToVector(`xform -q -ws -t $_start`);
+  vector $p2=Bp_convertFloatToVector(`xform -q -ws -t $_end`);
+  return mag($p1-$p2);
+}
+
+global proc vector Bp_convertFloatToVector(float $f[])
+{
+	return ( <<$f[0],$f[1],$f[2]>>);
+}
+
+global proc string Bp_getShape(string $obj){
+	string $temp[]=`listRelatives -s $obj`;
+	return $temp[0];
+}
+
+global proc string Bp_getFirstElement(string $arr[])
+{
+	return $arr[0];
+}
+ proc Bp_addNodeSuffix(string $object)
+{
+  //find the object type,this gives the transform usually as its the one selected
+  string $type=`nodeType $object`;
+  //to get the correct node type,find the shape
+  string $shapes[]=`listRelatives -s $object`;
+  if(size($shapes)!=0)
+  {
+    $type=`nodeType $shapes[0]`;
+  }
+  
+  switch($type)
+  {
+    case "annonationShape":
+      Bp_rename("prefix","_ann");
+      break;
+    case "locator":
+      Bp_rename("prefix","_loc");
+      break;
+    case "joint":
+      Bp_rename("prefix","_jnt");
+      break;
+  }
+}
+//perform parenting operations
+global proc Bp_parent()
+{
+	string $sel[]=`ls-sl`;
+	string $parent,$child;
+	int $i=0;
+	for($obj in $sel)
+  {
+		if($i==0)
+    {
+			$parent=$obj;
+			$i++;
+			continue;
+		}
+		$child=$obj;
+		parent $child $parent;
+		$parent=$child;
+	}
+}
+//utility procs
+
+//open script path with the file selected
+ proc Bp_openScriptPath(string $scriptName)
+{
+	string $path=`whatIs $scriptName`;
+	if($path=="Command"){
+		warning "It is a Command";
+		return;
+	}		
+	string $temp=`match "( [A-Z]).*$" $path`;
+	string $nativePath=toNativePath($temp);
+	system(" start explorer /select,"+$nativePath);
+}
+
+global proc string Bp_getMyScriptPath()
+{
+  string $allPaths[];
+  tokenize(`getenv "MAYA_SCRIPT_PATH"`,";",$allPaths);
+  string $fullPath;
+  for($path in $allPaths)
+  {
+    if(`gmatch $path "*Bp_scripts*"`)
+     {
+      $fullPath=$path;
+      break;
+     }
+  }
+  return $fullPath;
+
+}
+
+proc Bp_getSourceImages()
+{
+	// copy only the images not present in the sourceimages directory
+	string $fileNodes[]=`ls -type "file"`;
+	string $imgFolder=`workspace -q -fre "sourceImages"`;
+	string $imgPath=`workspace -expandName $imgFolder`;
+	string $temp[];
+	for($obj in $fileNodes)
+  {
+		string $filePath=`getAttr ($obj+".fileTextureName")`;
+		tokenize $filePath "//" $temp;
+		if(size($temp)>2)
+    {
+			string $fileName=$temp[(size($temp)-1)];
+			string $path=`match "^.*/" $filePath`;
+			Bp_copyFile($path,$imgPath,$fileName);
+			setAttr -type "string" ($obj+".fileTextureName") ("sourceImages\\"+$fileName);
+		}
+	}
+}
+
+global proc Bp_saveSnapShot(string $_name)
+{
+//setting the prespective camera 
+  modelEditor -e -nurbsCurves false modelPanel4;
+  modelEditor -e -grid false modelPanel4;
+  //isolateSelect -state 1 modelPanel4;
+  select -cl;
+  int    $format    =    `getAttr "defaultRenderGlobals.imageFormat"`;
+  // set to render to .png image
+  setAttr    "defaultRenderGlobals.imageFormat" 32;
+  string $scriptsFolder=`workspace -q -fre "scripts"`;
+  string $path=(`workspace -expandName $scriptsFolder`+"/poses/");
+  print($path);
+  // playblast one frame to a specific file
+  playblast -frame 1 -format "image" -cf  ($path+$_name+".png") -v 0 -wh 64 64 -p 100;
+  // restore the old format
+  setAttr    "defaultRenderGlobals.imageFormat" $format;
+
+  modelEditor -e -nurbsCurves true modelPanel4;
+  modelEditor -e -grid true modelPanel4;
+  //isolateSelect -state 0 modelPanel4;
+
+}
