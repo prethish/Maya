@@ -5,6 +5,10 @@ sys.path.append(os.path.dirname(parent))
 from multitask.Qt import QtCore, QtWidgets, QtGui
 from multitask import manager
 from itertools import cycle
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 class ListModel(QtCore.QAbstractListModel):
 
@@ -155,21 +159,8 @@ class ListDelegate(QtWidgets.QStyledItemDelegate):
         
         painter.setPen(QtCore.Qt.black)
         painter.setFont(QtGui.QFont("Arial", 10))
-        painter.drawText(option.rect, value["task"])
-        painter.drawRect(option.rect)
-        button = QtWidgets.QStyleOptionButton()
-        r = option.rect  # getting the rect of the cell
-
-        x = r.left()
-        y = r.top()
-        w = r.width()
-        h = r.height()
-        button.rect = QtCore.QRect(x+10, y+10, 40, 40)
-        button.text = "X"
-        
-        QtWidgets.QWidget().style().drawControl(
-            QtWidgets.QStyle.CE_PushButton, button, painter
-        )
+        painter.drawText(option.rect, value["status"])
+        # painter.drawRect(option.rect)
         super(ListDelegate, self).paint(
             painter, option, index
         )
@@ -193,6 +184,10 @@ class ProcessControlWidget(QtWidgets.QWidget):
         self.start_stop.setIcon(
             self.style().standardIcon(QtWidgets.QStyle.SP_MediaPlay)
         )
+        self.refresh = QtWidgets.QPushButton()
+        self.refresh.setIcon(
+            self.style().standardIcon(QtWidgets.QStyle.SP_BrowserReload)
+        )
         self.kill =  QtWidgets.QPushButton('Kill')
         self.kill.setIcon(
             self.style().standardIcon(QtWidgets.QStyle.SP_BrowserStop)
@@ -205,6 +200,7 @@ class ProcessControlWidget(QtWidgets.QWidget):
         self.toplayout.addWidget(self.proc_number)
         
         self.btmlayout.addWidget(self.start_stop)
+        self.btmlayout.addWidget(self.refresh)
         self.btmlayout.addWidget(self.kill)
         self.process_view = ListView()
         self.process_delegate = ListDelegate()
@@ -217,6 +213,7 @@ class ProcessControlWidget(QtWidgets.QWidget):
 
     def connect_slots(self):
         self.start_stop.clicked.connect(self.start_action)
+        self.refresh.clicked.connect(self._update_info)
 
     def toggle_start_btn(self):
         icon = QtWidgets.QStyle.SP_MediaStop if self._start_state == "start" \
@@ -226,6 +223,11 @@ class ProcessControlWidget(QtWidgets.QWidget):
         )
         self._start_state = "stop" if self._start_state == "start" else 'start'
         self.start_stop.setText(self._start_state.title())
+
+    def _update_info(self):
+        if self._proc_manager:
+            self.model = ListModel(self._proc_manager.get_update())
+            self.process_view.setModel(self.model)
 
     def start_action(self):
         n_procs = int(self.proc_number.text())
@@ -237,9 +239,9 @@ class ProcessControlWidget(QtWidgets.QWidget):
         if current_state == "stop":
             self._proc_manager.stop()
 
+        self._update_info()
         self.toggle_start_btn()
-        self.model = ListModel(self._proc_manager.get_update())
-        self.process_view.setModel(self.model)
+
         
 
 def get_processes_info():
@@ -262,7 +264,10 @@ def get_processes_info():
     ]
 
 if __name__ == '__main__':
-
+    print(logger.getEffectiveLevel())
+    logger.info("Starting app..")
+    logger.debug("DStarting app..")
+    logger.warning("WStarting app..")
     application = QtWidgets.QApplication([])
     widget = ProcessControlWidget()
     widget.show()

@@ -6,8 +6,8 @@ import logging
 from multitask import constants, utils
 
 
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 class PoolWorker(Process):
 

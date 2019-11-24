@@ -7,8 +7,8 @@ import logging
 from multitask.pool_worker import PoolWorker
 from multitask import constants
 
-logger = logging.getLogger(__name__)
-
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 class Pool(object):
     def __init__(self, n_workers=None):
